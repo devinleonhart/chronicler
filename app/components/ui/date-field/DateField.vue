@@ -1,7 +1,26 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { DateFieldRoot, DateFieldInput } from 'radix-vue'
+import {
+  DatePickerRoot,
+  DatePickerField,
+  DatePickerInput,
+  DatePickerTrigger,
+  DatePickerContent,
+  DatePickerCalendar,
+  DatePickerHeader,
+  DatePickerHeading,
+  DatePickerPrev,
+  DatePickerNext,
+  DatePickerGrid,
+  DatePickerGridHead,
+  DatePickerGridBody,
+  DatePickerGridRow,
+  DatePickerHeadCell,
+  DatePickerCell,
+  DatePickerCellTrigger
+} from 'radix-vue'
 import { CalendarDate, type DateValue } from '@internationalized/date'
+import { Calendar, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 
 interface Props {
   modelValue?: string
@@ -36,11 +55,18 @@ const placeholder = computed(() => parseDate(props.minValue))
 function handleUpdate(val: DateValue | undefined) {
   emit('update:modelValue', val ? val.toString() : '')
 }
+
+function prevYear(date: DateValue): DateValue {
+  return date.subtract({ years: 1 })
+}
+
+function nextYear(date: DateValue): DateValue {
+  return date.add({ years: 1 })
+}
 </script>
 
 <template>
-  <DateFieldRoot
-    class="date-field"
+  <DatePickerRoot
     :model-value="dateValue"
     :min-value="minDate"
     :max-value="maxDate"
@@ -48,48 +74,111 @@ function handleUpdate(val: DateValue | undefined) {
     :disabled="disabled"
     @update:model-value="handleUpdate"
   >
-    <template #default="{ segments }">
-      <template v-for="{ part, value } in segments" :key="part">
-        <span v-if="part === 'literal'" class="literal" aria-hidden="true">{{ value }}</span>
-        <DateFieldInput v-else :part="part" class="segment" />
-      </template>
-    </template>
-  </DateFieldRoot>
+    <div class="date-picker-wrapper" :data-disabled="disabled || undefined">
+      <DatePickerField v-slot="{ segments }" class="date-picker-field">
+        <template v-for="{ part, value } in segments" :key="part">
+          <span v-if="part === 'literal'" class="literal" aria-hidden="true">{{ value }}</span>
+          <DatePickerInput v-else :part="part" class="segment">{{ value }}</DatePickerInput>
+        </template>
+      </DatePickerField>
+      <DatePickerTrigger class="cal-trigger">
+        <Calendar :size="15" />
+      </DatePickerTrigger>
+    </div>
+
+    <DatePickerContent class="cal-content" side="bottom" align="start" :side-offset="4">
+      <DatePickerCalendar v-slot="{ weekDays, grid }">
+        <DatePickerHeader class="cal-header">
+          <DatePickerPrev :prev-page="prevYear" class="cal-nav-btn" title="Previous year">«</DatePickerPrev>
+          <DatePickerPrev class="cal-nav-btn" title="Previous month">
+            <ChevronLeft :size="14" />
+          </DatePickerPrev>
+          <DatePickerHeading v-slot="{ headingValue }" class="cal-heading">
+            {{ headingValue }}
+          </DatePickerHeading>
+          <DatePickerNext class="cal-nav-btn" title="Next month">
+            <ChevronRight :size="14" />
+          </DatePickerNext>
+          <DatePickerNext :next-page="nextYear" class="cal-nav-btn" title="Next year">»</DatePickerNext>
+        </DatePickerHeader>
+
+        <DatePickerGrid
+          v-for="month in grid"
+          :key="month.value.toString()"
+          class="cal-grid"
+        >
+          <DatePickerGridHead>
+            <DatePickerGridRow class="cal-week-row">
+              <DatePickerHeadCell
+                v-for="day in weekDays"
+                :key="day"
+                class="cal-head-cell"
+              >
+                {{ day }}
+              </DatePickerHeadCell>
+            </DatePickerGridRow>
+          </DatePickerGridHead>
+          <DatePickerGridBody>
+            <DatePickerGridRow
+              v-for="(weekDates, i) in month.rows"
+              :key="i"
+              class="cal-week-row"
+            >
+              <DatePickerCell
+                v-for="date in weekDates"
+                :key="date.toString()"
+                :date="date"
+                class="cal-cell"
+              >
+                <DatePickerCellTrigger
+                  :day="date"
+                  :month="month.value"
+                  class="cal-day"
+                />
+              </DatePickerCell>
+            </DatePickerGridRow>
+          </DatePickerGridBody>
+        </DatePickerGrid>
+      </DatePickerCalendar>
+    </DatePickerContent>
+  </DatePickerRoot>
 </template>
 
 <style scoped>
-.date-field {
+.date-picker-wrapper {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   width: 100%;
-  padding: 0.5rem 0.75rem;
   background-color: var(--color-background);
-  color: var(--color-foreground);
   border: 1px solid var(--color-input);
   border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-family: inherit;
-  line-height: 1.5;
   transition: border-color 0.15s, box-shadow 0.15s;
-  cursor: text;
+  overflow: hidden;
 }
 
-.date-field:focus-within {
+.date-picker-wrapper:focus-within {
   border-color: var(--color-ring);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-ring) 25%, transparent);
 }
 
-.date-field[data-disabled] {
+.date-picker-wrapper[data-disabled] {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.date-field[data-invalid] {
-  border-color: var(--color-destructive);
+:deep(.date-picker-field) {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  cursor: text;
+  gap: 1px;
 }
 
 :deep(.segment) {
-  padding: 0 1px;
+  padding: 0 2px;
   border-radius: 2px;
   outline: none;
   caret-color: transparent;
@@ -107,5 +196,24 @@ function handleUpdate(val: DateValue | undefined) {
 .literal {
   color: var(--color-muted-foreground);
   user-select: none;
+}
+
+.cal-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.625rem;
+  border: none;
+  border-left: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-muted-foreground);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.cal-trigger:hover {
+  background-color: var(--color-accent);
+  color: var(--color-foreground);
 }
 </style>

@@ -34,8 +34,12 @@ const emit = defineEmits<{
 
 <style scoped>
 .checkbox {
+  appearance: none;
+  -webkit-appearance: none;
   width: 1.125rem;
   height: 1.125rem;
+  min-width: 1.125rem;
+  min-height: 1.125rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-input);
   background-color: var(--color-background);
@@ -44,6 +48,7 @@ const emit = defineEmits<{
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  padding: 0;
   transition: background-color 0.15s, border-color 0.15s;
 }
 

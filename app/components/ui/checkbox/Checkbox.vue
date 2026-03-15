@@ -27,7 +27,7 @@ const emit = defineEmits<{
     @update:checked="emit('update:checked', $event)"
   >
     <CheckboxIndicator class="checkbox-indicator">
-      <Check />
+      <Check v-if="checked" :size="11" />
     </CheckboxIndicator>
   </CheckboxRoot>
 </template>

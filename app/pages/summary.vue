@@ -161,7 +161,6 @@ async function copyText() {
                   @update:checked="toggleCharacter(char.id)"
                 />
                 <span class="char-name">{{ char.name }}</span>
-                <span class="char-dates">b. {{ char.birthDate }}</span>
               </label>
               <span v-if="filteredCharacters.length === 0" class="empty-state">
                 No characters match.
@@ -319,11 +318,6 @@ async function copyText() {
   white-space: nowrap;
 }
 
-.char-dates {
-  font-size: 0.8125rem;
-  color: var(--color-muted-foreground);
-  flex-shrink: 0;
-}
 
 .output-panel {
   display: flex;

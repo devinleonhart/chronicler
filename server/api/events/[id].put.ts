@@ -3,6 +3,7 @@ import { db } from '../../utils/db.js'
 import { handleUnknownError } from '../../utils/handleUnknownError.js'
 import { parseId } from '../../utils/parseId.js'
 import { validateUniverseDates } from '../../utils/validateUniverseDates.js'
+import { validateCharacterLifespans } from '../../utils/validateCharacterLifespans.js'
 import { event, eventCharacter } from '../../db/index.js'
 import { eq } from 'drizzle-orm'
 
@@ -45,6 +46,30 @@ export default eventHandler(async (eventObj) => {
       if (universeDateError) {
         setResponseStatus(eventObj, 400)
         return { error: universeDateError }
+      }
+    }
+
+    if (Array.isArray(characterIds) && characterIds.length > 0) {
+      // Determine effective event dates: use incoming values if provided, else look up current
+      let effectiveStart = startDate as string | undefined
+      let effectiveEnd = endDate as string | null | undefined
+      if (effectiveStart === undefined || effectiveEnd === undefined) {
+        const existing = await db.query.event.findFirst({ where: (e, { eq }) => eq(e.id, id) })
+        if (!existing) {
+          setResponseStatus(eventObj, 404)
+          return { error: 'Event not found' }
+        }
+        if (effectiveStart === undefined) effectiveStart = existing.startDate
+        if (effectiveEnd === undefined) effectiveEnd = existing.endDate
+      }
+      const lifespanError = await validateCharacterLifespans(
+        characterIds as number[],
+        effectiveStart!,
+        effectiveEnd
+      )
+      if (lifespanError) {
+        setResponseStatus(eventObj, 400)
+        return { error: lifespanError }
       }
     }
 

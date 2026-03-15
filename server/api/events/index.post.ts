@@ -2,6 +2,7 @@ import { eventHandler, readBody, setResponseStatus } from 'h3'
 import { db } from '../../utils/db.js'
 import { handleUnknownError } from '../../utils/handleUnknownError.js'
 import { validateUniverseDates } from '../../utils/validateUniverseDates.js'
+import { validateCharacterLifespans } from '../../utils/validateCharacterLifespans.js'
 import { event, eventCharacter } from '../../db/index.js'
 
 export default eventHandler(async (eventObj) => {
@@ -36,6 +37,18 @@ export default eventHandler(async (eventObj) => {
     if (universeDateError) {
       setResponseStatus(eventObj, 400)
       return { error: universeDateError }
+    }
+
+    if (Array.isArray(characterIds) && characterIds.length > 0) {
+      const lifespanError = await validateCharacterLifespans(
+        characterIds as number[],
+        startDate as string,
+        endDate as string | null | undefined
+      )
+      if (lifespanError) {
+        setResponseStatus(eventObj, 400)
+        return { error: lifespanError }
+      }
     }
 
     const [row] = await db.insert(event).values({

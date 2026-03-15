@@ -124,6 +124,44 @@ describe('Event Routes', () => {
         .send({ name: 'The Battle', startDate: '0450-06-01' })
         .expect(201)
     })
+
+    it('should return 400 if a character was not yet born when the event ended', async () => {
+      const char = await createTestCharacter({ name: 'Lyra', birthDate: '0460-01-01' })
+
+      await request(app)
+        .post('/api/events')
+        .send({ name: 'Early Battle', startDate: '0450-01-01', endDate: '0455-12-31', characterIds: [char!.id] })
+        .expect(400)
+    })
+
+    it('should return 400 if a character was already dead when the event started', async () => {
+      const char = await createTestCharacter({ name: 'Old Mage', birthDate: '0300-01-01', deathDate: '0400-12-31' })
+
+      await request(app)
+        .post('/api/events')
+        .send({ name: 'Later Battle', startDate: '0450-01-01', characterIds: [char!.id] })
+        .expect(400)
+    })
+
+    it('should allow a character born mid-event', async () => {
+      // Event runs 0450–0460, character born 0455 — overlaps, so valid
+      const char = await createTestCharacter({ name: 'Young Hero', birthDate: '0455-06-01' })
+
+      await request(app)
+        .post('/api/events')
+        .send({ name: 'Long Campaign', startDate: '0450-01-01', endDate: '0460-12-31', characterIds: [char!.id] })
+        .expect(201)
+    })
+
+    it('should allow a character who dies mid-event', async () => {
+      // Event runs 0450–0460, character dies 0455 — overlaps, so valid
+      const char = await createTestCharacter({ name: 'Fallen Hero', birthDate: '0400-01-01', deathDate: '0455-06-01' })
+
+      await request(app)
+        .post('/api/events')
+        .send({ name: 'Long Campaign', startDate: '0450-01-01', endDate: '0460-12-31', characterIds: [char!.id] })
+        .expect(201)
+    })
   })
 
   describe('GET /api/events/:id', () => {
@@ -193,6 +231,26 @@ describe('Event Routes', () => {
       await request(app)
         .put(`/api/events/${ev!.id}`)
         .send({ endDate: '1000-01-01' })
+        .expect(400)
+    })
+
+    it('should return 400 when assigning a character not yet born at event time', async () => {
+      const ev = await createTestEvent({ name: 'Early Battle', startDate: '0450-01-01' })
+      const char = await createTestCharacter({ name: 'Lyra', birthDate: '0500-01-01' })
+
+      await request(app)
+        .put(`/api/events/${ev!.id}`)
+        .send({ characterIds: [char!.id] })
+        .expect(400)
+    })
+
+    it('should return 400 when assigning a character already dead before event starts', async () => {
+      const ev = await createTestEvent({ name: 'Later Battle', startDate: '0450-01-01' })
+      const char = await createTestCharacter({ name: 'Old Mage', birthDate: '0300-01-01', deathDate: '0400-12-31' })
+
+      await request(app)
+        .put(`/api/events/${ev!.id}`)
+        .send({ characterIds: [char!.id] })
         .expect(400)
     })
   })

@@ -13,6 +13,13 @@ function ageAt(birthDate: string, referenceDate: string): number {
   return Math.max(0, years)
 }
 
+function ageRange(birthDate: string, startDate: string, endDate: string | null): string {
+  const start = ageAt(birthDate, startDate)
+  if (!endDate) return `${start}`
+  const end = ageAt(birthDate, endDate)
+  return start === end ? `${start}` : `${start}–${end}`
+}
+
 export default eventHandler(async (h3Event) => {
   try {
     const query = getQuery(h3Event)
@@ -105,18 +112,18 @@ export default eventHandler(async (h3Event) => {
 
         if (characters.length === 1) {
           const c = characters[0]!
-          const age = ageAt(c.birthDate, ev.startDate)
+          const age = ageRange(c.birthDate, ev.startDate, ev.endDate)
           const othersStr = others.length > 0
-            ? others.map(ec => `${ec.character.name} (age ${ageAt(ec.character.birthDate, ev.startDate)})`).join(', ')
+            ? others.map(ec => `${ec.character.name} (age ${ageRange(ec.character.birthDate, ev.startDate, ev.endDate)})`).join(', ')
             : 'none'
           lines.push(`   Age: ${age}  |  Also present: ${othersStr}`)
         } else {
           const selectedStr = selected.length > 0
-            ? selected.map(ec => `${ec.character.name} (age ${ageAt(ec.character.birthDate, ev.startDate)})`).join(', ')
+            ? selected.map(ec => `${ec.character.name} (age ${ageRange(ec.character.birthDate, ev.startDate, ev.endDate)})`).join(', ')
             : 'none'
           lines.push(`   Selected present:  ${selectedStr}`)
           if (others.length > 0) {
-            const othersStr = others.map(ec => `${ec.character.name} (age ${ageAt(ec.character.birthDate, ev.startDate)})`).join(', ')
+            const othersStr = others.map(ec => `${ec.character.name} (age ${ageRange(ec.character.birthDate, ev.startDate, ev.endDate)})`).join(', ')
             lines.push(`   Others present:    ${othersStr}`)
           }
         }

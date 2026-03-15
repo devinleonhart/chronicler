@@ -30,6 +30,7 @@
     "db:seed": "tsx server/db/seed.ts"
   },
   "dependencies": {
+    "@internationalized/date": "^3.12.0",
     "@pinia/nuxt": "^0.11.3",
     "axios": "^1.13.6",
     "drizzle-orm": "^0.45.1",

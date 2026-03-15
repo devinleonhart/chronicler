@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import type { ChronicleEvent, CreateEventRequest, UpdateEventRequest } from '@/types/store/events'
 import type { Character } from '@/types/store/characters'
 import {
@@ -13,7 +14,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
+import { DateField } from '@/components/ui/date-field'
 import { Search } from 'lucide-vue-next'
+
+const settingsStore = useSettingsStore()
+const { settings } = storeToRefs(settingsStore)
 
 interface Props {
   open: boolean
@@ -110,19 +115,19 @@ function handleSubmit() {
 
           <div class="field-row">
             <div class="field">
-              <Label for="event-start">Start Date</Label>
-              <Input
-                id="event-start"
+              <Label>Start Date</Label>
+              <DateField
                 v-model="startDate"
-                placeholder="YYYY-MM-DD"
+                :min-value="settings?.startDate"
+                :max-value="settings?.endDate"
               />
             </div>
             <div class="field">
-              <Label for="event-end">End Date (optional)</Label>
-              <Input
-                id="event-end"
+              <Label>End Date (optional)</Label>
+              <DateField
                 v-model="endDate"
-                placeholder="YYYY-MM-DD"
+                :min-value="settings?.startDate"
+                :max-value="settings?.endDate"
               />
             </div>
           </div>

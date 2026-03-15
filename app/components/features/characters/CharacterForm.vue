@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import type { Character, CreateCharacterRequest, UpdateCharacterRequest } from '@/types/store/characters'
 import type { Group } from '@/types/store/groups'
 import {
@@ -10,9 +11,12 @@ import {
   DialogFooter
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
+import { DateField } from '@/components/ui/date-field'
+
+const settingsStore = useSettingsStore()
+const { settings } = storeToRefs(settingsStore)
 
 interface Props {
   open: boolean
@@ -100,19 +104,19 @@ function handleSubmit() {
 
           <div class="field-row">
             <div class="field">
-              <Label for="birth-date">Birth Date</Label>
-              <Input
-                id="birth-date"
+              <Label>Birth Date</Label>
+              <DateField
                 v-model="birthDate"
-                placeholder="YYYY-MM-DD"
+                :min-value="settings?.startDate"
+                :max-value="settings?.endDate"
               />
             </div>
             <div class="field">
-              <Label for="death-date">Death Date (optional)</Label>
-              <Input
-                id="death-date"
+              <Label>Death Date (optional)</Label>
+              <DateField
                 v-model="deathDate"
-                placeholder="YYYY-MM-DD"
+                :min-value="settings?.startDate"
+                :max-value="settings?.endDate"
               />
             </div>
           </div>

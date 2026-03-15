@@ -2,9 +2,9 @@
 import { ref, watch } from 'vue'
 import type { UniverseSettings, UpdateSettingsRequest } from '@/types/store/settings'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { DateField } from '@/components/ui/date-field'
 
 interface Props {
   settings: UniverseSettings | null
@@ -58,29 +58,21 @@ function handleSubmit() {
 
         <div class="field-row">
           <div class="field">
-            <Label for="start-date">Universe Start Date</Label>
-            <Input
-              id="start-date"
-              v-model="startDate"
-              placeholder="YYYY-MM-DD"
-            />
+            <Label>Universe Start Date</Label>
+            <DateField v-model="startDate" />
           </div>
           <div class="field">
-            <Label for="end-date">Universe End Date</Label>
-            <Input
-              id="end-date"
-              v-model="endDate"
-              placeholder="YYYY-MM-DD"
-            />
+            <Label>Universe End Date</Label>
+            <DateField v-model="endDate" />
           </div>
         </div>
 
         <div class="field">
-          <Label for="current-day">Current Day</Label>
-          <Input
-            id="current-day"
+          <Label>Current Day</Label>
+          <DateField
             v-model="currentDay"
-            placeholder="YYYY-MM-DD"
+            :min-value="startDate"
+            :max-value="endDate"
           />
           <span class="hint">This date drives the "Current Day" event and shows current character ages.</span>
         </div>

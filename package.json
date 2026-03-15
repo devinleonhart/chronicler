@@ -1,0 +1,65 @@
+{
+  "name": "chronicler",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.14.0",
+    "pnpm": ">=10.30.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "start": "node .output/server/index.mjs",
+    "test": "vitest run",
+    "test:server": "vitest run",
+    "test:server:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "tsc": "nuxt typecheck",
+    "quality": "pnpm run test && pnpm run lint && pnpm run tsc",
+    "db:migrate": "tsx server/db/migrate.ts",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx server/db/seed.ts"
+  },
+  "dependencies": {
+    "@pinia/nuxt": "^0.11.3",
+    "axios": "^1.13.6",
+    "drizzle-orm": "^0.45.1",
+    "lucide-vue-next": "^0.575.0",
+    "nuxt": "^4.3.1",
+    "pg": "^8.19.0",
+    "pinia": "^3.0.4",
+    "radix-vue": "^1.9.17",
+    "srvx": "^0.11.8",
+    "tsx": "^4.21.0",
+    "vue": "^3.5.29"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.3",
+    "@types/node": "^25.3.3",
+    "@types/pg": "^8.18.0",
+    "@types/supertest": "^7.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "@vitest/coverage-v8": "^4.0.18",
+    "drizzle-kit": "^0.31.9",
+    "eslint": "^9.39.3",
+    "eslint-plugin-vue": "^10.8.0",
+    "globals": "^17.4.0",
+    "h3": "^1.15.5",
+    "supertest": "^7.2.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18",
+    "vue-tsc": "^3.2.5"
+  }
+}

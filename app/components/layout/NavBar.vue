@@ -1,0 +1,69 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { Button } from '@/components/ui/button'
+import { CalendarDays, Users, Tags, Settings } from 'lucide-vue-next'
+
+interface NavRoute {
+  path: string
+  name: string
+  icon: typeof CalendarDays
+}
+
+const router = useRouter()
+const route = useRoute()
+
+const routes: NavRoute[] = [
+  { path: '/events', name: 'Events', icon: CalendarDays },
+  { path: '/characters', name: 'Characters', icon: Users },
+  { path: '/groups', name: 'Groups', icon: Tags },
+  { path: '/settings', name: 'Settings', icon: Settings }
+]
+
+const currentPath = computed(() => route.path)
+
+function navigateTo(path: string) {
+  router.push(path)
+}
+</script>
+
+<template>
+  <header class="navbar">
+    <nav class="navbar-nav">
+      <Button
+        v-for="navRoute in routes"
+        :key="navRoute.path"
+        :variant="currentPath === navRoute.path ? 'default' : 'ghost'"
+        size="sm"
+        @click="navigateTo(navRoute.path)"
+      >
+        <component :is="navRoute.icon" />
+        <span>{{ navRoute.name }}</span>
+      </Button>
+    </nav>
+  </header>
+</template>
+
+<style scoped>
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.5rem;
+  background-color: color-mix(in srgb, var(--color-background) 85%, transparent);
+  border-bottom: 1px solid var(--color-border);
+  backdrop-filter: blur(8px);
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+</style>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, watch, ref } from 'vue'
-import { Timeline, DataSet } from 'vis-timeline/standalone'
+import { Timeline } from 'vis-timeline/standalone'
+import { DataSet } from 'vis-data'
 import 'vis-timeline/styles/vis-timeline-graph2d.css'
 import type { ChronicleEvent } from '@/types/store/events'
 import type { UniverseSettings } from '@/types/store/settings'
@@ -44,7 +45,7 @@ function buildOptions() {
     showMinorLabels: true,
     orientation: { axis: 'top' },
     zoomMin: 1000 * 60 * 60 * 24 * 365,     // 1 year minimum zoom
-    tooltip: { followMouse: true, overflowMethod: 'flip' },
+    tooltip: { followMouse: true, overflowMethod: 'flip' as const },
     selectable: true
   }
 }
@@ -58,7 +59,6 @@ function initTimeline() {
   // Current Day marker
   if (props.settings?.currentDay) {
     timeline.addCustomTime(new Date(props.settings.currentDay), 'currentDay')
-    timeline.setCustomTimeMarker('Current Day', 'currentDay', false)
   }
 
   // Click to edit
@@ -77,10 +77,9 @@ function refreshTimeline() {
   timeline.setItems(buildItems())
   timeline.setOptions(buildOptions())
 
-  try { timeline.removeCustomTime('currentDay') } catch {}
+  try { timeline.removeCustomTime('currentDay') } catch { /* not yet added */ }
   if (props.settings?.currentDay) {
     timeline.addCustomTime(new Date(props.settings.currentDay), 'currentDay')
-    timeline.setCustomTimeMarker('Current Day', 'currentDay', false)
   }
 }
 

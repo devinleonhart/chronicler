@@ -70,29 +70,24 @@ const ungrouped = computed(() =>
 </script>
 
 <template>
-  <PageLayout>
-    <template #header>
-      <div class="page-header">
-        <div class="header-left">
-          <h1 class="page-title">Current Day</h1>
-          <span v-if="referenceDate" class="date-badge">{{ referenceDate }}</span>
-        </div>
-        <div class="view-toggle">
-          <button
-            class="toggle-btn"
-            :class="{ active: groupBy === 'none' }"
-            @click="groupBy = 'none'"
-          >
-            <Users :size="14" /> All
-          </button>
-          <button
-            class="toggle-btn"
-            :class="{ active: groupBy === 'group' }"
-            @click="groupBy = 'group'"
-          >
-            By Group
-          </button>
-        </div>
+  <PageLayout title="Current Day">
+    <template #actions>
+      <span v-if="referenceDate" class="date-badge">{{ referenceDate }}</span>
+      <div class="view-toggle">
+        <button
+          class="toggle-btn"
+          :class="{ active: groupBy === 'none' }"
+          @click="groupBy = 'none'"
+        >
+          <Users :size="14" /> All
+        </button>
+        <button
+          class="toggle-btn"
+          :class="{ active: groupBy === 'group' }"
+          @click="groupBy = 'group'"
+        >
+          By Group
+        </button>
       </div>
     </template>
 
@@ -161,26 +156,6 @@ const ungrouped = computed(() =>
 </template>
 
 <style scoped>
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.page-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0;
-}
-
 .date-badge {
   font-size: 0.875rem;
   color: var(--color-muted-foreground);

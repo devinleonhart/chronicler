@@ -29,15 +29,16 @@ describe('Event Routes', () => {
       expect(response.body[0].eventCharacters).toEqual([])
     })
 
-    it('should list Current Day first', async () => {
+    it('should sort events by startDate ascending', async () => {
+      await createTestEvent({ name: 'Late Event', startDate: '0500-06-15' })
       await createTestEvent({ name: 'Early Event', startDate: '0100-01-01' })
-      await createTestEvent({ name: 'Current Day', startDate: '0500-06-15', isCurrentDay: true })
 
       const response = await request(app)
         .get('/api/events')
         .expect(200)
 
-      expect(response.body[0].name).toBe('Current Day')
+      expect(response.body[0].name).toBe('Early Event')
+      expect(response.body[1].name).toBe('Late Event')
     })
   })
 

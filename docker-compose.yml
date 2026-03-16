@@ -7,7 +7,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/chronicle
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/chronicler_dev
     depends_on:
       postgres:
         condition: service_healthy
@@ -20,7 +20,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: chronicle
+      POSTGRES_DB: chronicler_dev
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -37,7 +37,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: chronicle_test
+      POSTGRES_DB: chronicler_test
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s

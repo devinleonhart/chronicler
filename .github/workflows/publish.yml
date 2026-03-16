@@ -36,14 +36,14 @@ jobs:
           docker run -d --name postgres-test --network chronicler-test-net \
             -e POSTGRES_USER=postgres \
             -e POSTGRES_PASSWORD=postgres \
-            -e POSTGRES_DB=chronicle_test \
+            -e POSTGRES_DB=chronicler_test \
             postgres:17.4
           sleep 5
 
       - name: Run tests
         run: |
           docker run --rm --network chronicler-test-net \
-            -e TEST_DATABASE_URL=postgresql://postgres:postgres@postgres-test:5432/chronicle_test \
+            -e TEST_DATABASE_URL=postgresql://postgres:postgres@postgres-test:5432/chronicler_test \
             -e NODE_ENV=test \
             chronicler:test sh -c "pnpm run test"
 

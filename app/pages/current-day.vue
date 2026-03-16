@@ -1,17 +1,47 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { PageLayout } from '@/components/layout'
+import { CharacterForm } from '@/components/features/characters'
 import { calculateAge } from '@/lib/ageCalculator'
 import { Users, Skull } from 'lucide-vue-next'
+import type { Character, UpdateCharacterRequest } from '@/types/store/characters'
 
 const settingsStore = useSettingsStore()
 const charactersStore = useCharactersStore()
+const groupsStore = useGroupsStore()
+const toast = useToast()
 
 const { settings } = storeToRefs(settingsStore)
 const { characters } = storeToRefs(charactersStore)
+const { groups } = storeToRefs(groupsStore)
+
+onMounted(() => {
+  if (!groups.value.length) groupsStore.getGroups()
+})
 
 const groupBy = ref<'none' | 'group'>('none')
+const showForm = ref(false)
+const selectedCharacter = ref<Character | null>(null)
+
+function handleCardClick(id: number) {
+  selectedCharacter.value = characters.value.find(c => c.id === id) ?? null
+  showForm.value = true
+}
+
+function closeForm() {
+  showForm.value = false
+  selectedCharacter.value = null
+}
+
+async function handleUpdateCharacter(id: number, data: UpdateCharacterRequest) {
+  try {
+    await charactersStore.updateCharacter(id, data)
+    toast.success('Character updated successfully')
+  } catch {
+    toast.error('Failed to update character')
+  }
+}
 
 const referenceDate = computed(() => settings.value?.currentDay ?? '')
 
@@ -100,7 +130,7 @@ const ungrouped = computed(() =>
       <section v-if="living.length > 0" class="section">
         <h2 class="section-title">Living ({{ living.length }})</h2>
         <div class="char-grid">
-          <div v-for="c in living" :key="c.id" class="char-card">
+          <div v-for="c in living" :key="c.id" class="char-card" @click="handleCardClick(c.id)">
             <span class="char-name">{{ c.name }}</span>
             <span class="char-age">{{ c.age }}</span>
           </div>
@@ -112,7 +142,7 @@ const ungrouped = computed(() =>
           <Skull :size="14" /> Deceased ({{ deceased.length }})
         </h2>
         <div class="char-grid">
-          <div v-for="c in deceased" :key="c.id" class="char-card deceased">
+          <div v-for="c in deceased" :key="c.id" class="char-card deceased" @click="handleCardClick(c.id)">
             <span class="char-name">{{ c.name }}</span>
             <span class="char-age">{{ c.age }} at death</span>
           </div>
@@ -130,6 +160,7 @@ const ungrouped = computed(() =>
             :key="c.id"
             class="char-card"
             :class="{ deceased: c.deceased }"
+            @click="handleCardClick(c.id)"
           >
             <span class="char-name">{{ c.name }}</span>
             <span class="char-age">{{ c.deceased ? `${c.age} at death` : c.age }}</span>
@@ -145,6 +176,7 @@ const ungrouped = computed(() =>
             :key="c.id"
             class="char-card"
             :class="{ deceased: c.deceased }"
+            @click="handleCardClick(c.id)"
           >
             <span class="char-name">{{ c.name }}</span>
             <span class="char-age">{{ c.deceased ? `${c.age} at death` : c.age }}</span>
@@ -153,6 +185,14 @@ const ungrouped = computed(() =>
       </section>
     </template>
   </PageLayout>
+
+  <CharacterForm
+    :open="showForm"
+    :character="selectedCharacter"
+    :groups="groups"
+    @update:open="closeForm"
+    @update="handleUpdateCharacter"
+  />
 </template>
 
 <style scoped>
@@ -230,6 +270,13 @@ const ungrouped = computed(() =>
   background-color: var(--color-card);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: border-color 0.1s, background-color 0.1s;
+}
+
+.char-card:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-accent);
 }
 
 .char-card.deceased {

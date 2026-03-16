@@ -9,14 +9,19 @@ import {
   TableHead,
   TableCell
 } from '@/components/ui/table'
-import { Pencil, Trash2, Star, ExternalLink } from 'lucide-vue-next'
+import { Pencil, Trash2, Star, ExternalLink, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-vue-next'
 import { calculateAge, formatAge } from '@/lib/ageCalculator'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
+type SortKey = 'name' | 'startDate' | 'endDate'
+type SortDir = 'asc' | 'desc'
+
 interface Props {
   events: ChronicleEvent[]
+  sortKey?: SortKey
+  sortDir?: SortDir
 }
 
 defineProps<Props>()
@@ -24,6 +29,7 @@ defineProps<Props>()
 const emit = defineEmits<{
   edit: [event: ChronicleEvent]
   delete: [id: number]
+  sort: [key: SortKey]
 }>()
 
 function getCharacterAge(birthDate: string, startDate: string, deathDate: string | null | undefined): string {
@@ -36,9 +42,30 @@ function getCharacterAge(birthDate: string, startDate: string, deathDate: string
   <Table>
     <TableHeader>
       <TableRow>
-        <TableHead>Event</TableHead>
-        <TableHead>Start Date</TableHead>
-        <TableHead>End Date</TableHead>
+        <TableHead class="sortable" @click="emit('sort', 'name')">
+          <span class="sort-header">
+            Event
+            <ChevronUp v-if="sortKey === 'name' && sortDir === 'asc'" :size="13" />
+            <ChevronDown v-else-if="sortKey === 'name' && sortDir === 'desc'" :size="13" />
+            <ChevronsUpDown v-else :size="13" class="sort-idle" />
+          </span>
+        </TableHead>
+        <TableHead class="sortable" @click="emit('sort', 'startDate')">
+          <span class="sort-header">
+            Start Date
+            <ChevronUp v-if="sortKey === 'startDate' && sortDir === 'asc'" :size="13" />
+            <ChevronDown v-else-if="sortKey === 'startDate' && sortDir === 'desc'" :size="13" />
+            <ChevronsUpDown v-else :size="13" class="sort-idle" />
+          </span>
+        </TableHead>
+        <TableHead class="sortable" @click="emit('sort', 'endDate')">
+          <span class="sort-header">
+            End Date
+            <ChevronUp v-if="sortKey === 'endDate' && sortDir === 'asc'" :size="13" />
+            <ChevronDown v-else-if="sortKey === 'endDate' && sortDir === 'desc'" :size="13" />
+            <ChevronsUpDown v-else :size="13" class="sort-idle" />
+          </span>
+        </TableHead>
         <TableHead>Characters &amp; Ages</TableHead>
         <TableHead></TableHead>
       </TableRow>
@@ -110,6 +137,26 @@ function getCharacterAge(birthDate: string, startDate: string, deathDate: string
 </template>
 
 <style scoped>
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.sort-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.sortable:hover {
+  color: var(--color-foreground);
+}
+
+.sort-idle {
+  opacity: 0.35;
+}
+
 .current-day-row {
   background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
 }

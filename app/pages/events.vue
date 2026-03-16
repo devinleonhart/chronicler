@@ -30,6 +30,21 @@ const searchQuery = ref('')
 const selectedFilterGroups = ref<number[]>([])
 const selectedFilterCharacters = ref<number[]>([])
 
+// Sort state
+type SortKey = 'name' | 'startDate' | 'endDate'
+type SortDir = 'asc' | 'desc'
+const sortKey = ref<SortKey>('startDate')
+const sortDir = ref<SortDir>('asc')
+
+function toggleSort(key: SortKey) {
+  if (sortKey.value === key) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortKey.value = key
+    sortDir.value = 'asc'
+  }
+}
+
 const filteredEvents = computed(() => {
   let result = events.value
 
@@ -68,6 +83,13 @@ const filteredEvents = computed(() => {
       return !hasGroupFilter && !hasCharFilter
     })
   }
+
+  result = [...result].sort((a, b) => {
+    const dir = sortDir.value === 'asc' ? 1 : -1
+    const aVal = a[sortKey.value] ?? ''
+    const bVal = b[sortKey.value] ?? ''
+    return aVal < bVal ? -dir : aVal > bVal ? dir : 0
+  })
 
   return result
 })
@@ -251,6 +273,9 @@ const hasActiveFilters = computed(() =>
       <EventList
         v-if="viewMode === 'list'"
         :events="filteredEvents"
+        :sort-key="sortKey"
+        :sort-dir="sortDir"
+        @sort="toggleSort"
         @edit="handleEditEvent"
         @delete="handleDeleteEvent"
       />

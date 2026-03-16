@@ -28,7 +28,6 @@ const emit = defineEmits<{
     <TableHeader>
       <TableRow>
         <TableHead>Name</TableHead>
-        <TableHead>Description</TableHead>
         <TableHead>Members</TableHead>
         <TableHead></TableHead>
       </TableRow>
@@ -39,11 +38,10 @@ const emit = defineEmits<{
           <span class="name">{{ group.name }}</span>
         </TableCell>
         <TableCell>
-          <span v-if="group.description" class="sub">{{ group.description }}</span>
+          <span v-if="group.characterGroups.length > 0" class="sub">
+            {{ group.characterGroups.map(cg => cg.character.name).sort().join(', ') }}
+          </span>
           <span v-else class="sub muted">—</span>
-        </TableCell>
-        <TableCell>
-          <span class="sub">{{ group.characterGroups.length }} character{{ group.characterGroups.length !== 1 ? 's' : '' }}</span>
         </TableCell>
         <TableCell>
           <div class="actions">

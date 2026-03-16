@@ -13,9 +13,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
 import { DateField } from '@/components/ui/date-field'
-import { Search } from 'lucide-vue-next'
+import { Search, Check } from 'lucide-vue-next'
 
 const settingsStore = useSettingsStore()
 const { settings } = storeToRefs(settingsStore)
@@ -139,18 +138,16 @@ function handleSubmit() {
               <Input v-model="characterSearch" placeholder="Search characters..." />
             </div>
             <div class="char-list">
-              <label
+              <div
                 v-for="character in filteredCharacters"
                 :key="character.id"
                 class="char-item"
+                :class="{ selected: selectedCharacterIds.includes(character.id) }"
+                @click="toggleCharacter(character.id)"
               >
-                <Checkbox
-                  :checked="selectedCharacterIds.includes(character.id)"
-                  @update:checked="toggleCharacter(character.id)"
-                />
                 <span>{{ character.name }}</span>
-                <span class="char-birth">b. {{ character.birthDate }}</span>
-              </label>
+                <Check v-if="selectedCharacterIds.includes(character.id)" :size="14" class="char-check" />
+              </div>
               <span v-if="filteredCharacters.length === 0" class="empty-state">No characters match.</span>
             </div>
           </div>
@@ -193,14 +190,27 @@ function handleSubmit() {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
   cursor: pointer;
+  border-radius: var(--radius-sm);
   font-size: 0.875rem;
+  border-left: 2px solid transparent;
+  transition: background-color 0.1s;
 }
 
-.char-birth {
+.char-item:hover {
+  background-color: var(--color-accent);
+}
+
+.char-item.selected {
+  background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  border-left-color: var(--color-primary);
+}
+
+.char-check {
+  color: var(--color-primary);
+  flex-shrink: 0;
   margin-left: auto;
-  font-size: 0.8125rem;
-  color: var(--color-muted-foreground);
 }
 
 .current-day-note {

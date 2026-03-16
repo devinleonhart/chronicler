@@ -83,7 +83,7 @@ export default eventHandler(async (h3Event) => {
       lines.push(`CHARACTER SUMMARY: ${c.name}`)
       lines.push(`Born: ${c.birthDate}  |  ${status}`)
       lines.push('')
-      lines.push('Events participated in (chronological):')
+      lines.push('Events:')
     } else {
       lines.push(`SUMMARY: ${characters.map(c => c.name).join(', ')}`)
       lines.push(`Generated: ${new Date().toISOString().slice(0, 10)}`)

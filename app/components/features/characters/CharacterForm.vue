@@ -12,8 +12,8 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
 import { DateField } from '@/components/ui/date-field'
+import { Check } from 'lucide-vue-next'
 
 const settingsStore = useSettingsStore()
 const { settings } = storeToRefs(settingsStore)
@@ -124,17 +124,16 @@ function handleSubmit() {
           <div v-if="groups.length > 0" class="field">
             <Label>Groups</Label>
             <div class="group-list">
-              <label
+              <div
                 v-for="group in groups"
                 :key="group.id"
                 class="group-item"
+                :class="{ selected: selectedGroupIds.includes(group.id) }"
+                @click="toggleGroup(group.id)"
               >
-                <Checkbox
-                  :checked="selectedGroupIds.includes(group.id)"
-                  @update:checked="toggleGroup(group.id)"
-                />
                 <span>{{ group.name }}</span>
-              </label>
+                <Check v-if="selectedGroupIds.includes(group.id)" :size="14" class="group-check" />
+              </div>
             </div>
           </div>
 
@@ -168,7 +167,26 @@ function handleSubmit() {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
   cursor: pointer;
+  border-radius: var(--radius-sm);
   font-size: 0.875rem;
+  border-left: 2px solid transparent;
+  transition: background-color 0.1s;
+}
+
+.group-item:hover {
+  background-color: var(--color-accent);
+}
+
+.group-item.selected {
+  background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  border-left-color: var(--color-primary);
+}
+
+.group-check {
+  color: var(--color-primary);
+  flex-shrink: 0;
+  margin-left: auto;
 }
 </style>

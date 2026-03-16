@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { ChronicleEvent } from '@/types/store/events'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableHeader,
@@ -10,8 +9,11 @@ import {
   TableHead,
   TableCell
 } from '@/components/ui/table'
-import { Pencil, Trash2, Star } from 'lucide-vue-next'
+import { Pencil, Trash2, Star, ExternalLink } from 'lucide-vue-next'
 import { calculateAge, formatAge } from '@/lib/ageCalculator'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 interface Props {
   events: ChronicleEvent[]
@@ -53,7 +55,6 @@ function getCharacterAge(birthDate: string, startDate: string, deathDate: string
               <Star v-if="event.isCurrentDay" class="current-day-icon" />
               {{ event.name }}
             </span>
-            <Badge v-if="event.isCurrentDay" variant="default" class="cd-badge">Current Day</Badge>
           </div>
         </TableCell>
         <TableCell>
@@ -65,7 +66,9 @@ function getCharacterAge(birthDate: string, startDate: string, deathDate: string
         </TableCell>
         <TableCell>
           <div v-if="event.isCurrentDay" class="char-list">
-            <span class="sub all-chars">All characters</span>
+            <button class="view-ages-btn" @click="router.push('/current-day')">
+              <ExternalLink :size="12" /> View all ages
+            </button>
           </div>
           <div v-else-if="event.eventCharacters.length > 0" class="char-list">
             <div
@@ -123,13 +126,6 @@ function getCharacterAge(birthDate: string, startDate: string, deathDate: string
   font-size: 0.875em;
 }
 
-.cd-badge {
-  font-size: 0.6875rem;
-  margin-top: 0.25rem;
-  display: inline-flex;
-  width: fit-content;
-}
-
 .sub {
   font-size: 0.875rem;
   color: var(--color-muted-foreground);
@@ -139,8 +135,20 @@ function getCharacterAge(birthDate: string, startDate: string, deathDate: string
   color: var(--color-border);
 }
 
-.all-chars {
-  font-style: italic;
+.view-ages-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.view-ages-btn:hover {
+  text-decoration: underline;
 }
 
 .char-list {

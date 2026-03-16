@@ -10,7 +10,7 @@ export default eventHandler(async (eventObj) => {
           with: { character: true }
         }
       },
-      orderBy: (e, { asc, desc }) => [desc(e.isCurrentDay), asc(e.startDate)]
+      orderBy: (e, { asc }) => [asc(e.startDate)]
     })
     return events
   } catch (error) {

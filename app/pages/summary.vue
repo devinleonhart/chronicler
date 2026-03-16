@@ -4,7 +4,6 @@ import { storeToRefs } from 'pinia'
 import { PageLayout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Checkbox } from '@/components/ui/checkbox'
 import axios from 'axios'
 import { Search, Copy, Check, Loader2, FileText } from 'lucide-vue-next'
 
@@ -151,17 +150,16 @@ async function copyText() {
           <div class="char-section">
             <p class="section-label">Characters</p>
             <div class="char-list">
-              <label
+              <div
                 v-for="char in filteredCharacters"
                 :key="char.id"
                 class="char-item"
+                :class="{ selected: selectedIds.has(char.id) }"
+                @click="toggleCharacter(char.id)"
               >
-                <Checkbox
-                  :checked="selectedIds.has(char.id)"
-                  @update:checked="toggleCharacter(char.id)"
-                />
                 <span class="char-name">{{ char.name }}</span>
-              </label>
+                <Check v-if="selectedIds.has(char.id)" :size="14" class="char-check" />
+              </div>
               <span v-if="filteredCharacters.length === 0" class="empty-state">
                 No characters match.
               </span>
@@ -299,15 +297,27 @@ async function copyText() {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.3rem 0.375rem;
+  padding: 0.3rem 0.5rem;
   cursor: pointer;
   border-radius: var(--radius-sm);
   font-size: 0.875rem;
   transition: background-color 0.1s;
+  border-left: 2px solid transparent;
 }
 
 .char-item:hover {
   background-color: var(--color-accent);
+}
+
+.char-item.selected {
+  background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  border-left-color: var(--color-primary);
+  color: var(--color-foreground);
+}
+
+.char-check {
+  color: var(--color-primary);
+  flex-shrink: 0;
 }
 
 .char-name {

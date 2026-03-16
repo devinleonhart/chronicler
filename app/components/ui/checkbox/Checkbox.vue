@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CheckboxRoot } from 'radix-vue'
 import { Check } from 'lucide-vue-next'
 
 interface Props {
@@ -19,25 +18,39 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <CheckboxRoot
-    class="checkbox-root"
-    :checked="checked"
+  <button
+    type="button"
+    role="checkbox"
+    :aria-checked="checked"
     :disabled="disabled"
+    class="checkbox-root"
     :class="props.class"
-    @update:checked="emit('update:checked', $event)"
+    @click.stop="emit('update:checked', !checked)"
   >
     <span class="checkbox-box">
       <Check v-if="checked" :size="11" />
     </span>
-  </CheckboxRoot>
+  </button>
 </template>
 
 <style scoped>
 .checkbox-root {
-  all: unset;
+  appearance: none;
+  -webkit-appearance: none;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+.checkbox-root:focus-visible .checkbox-box {
+  box-shadow: 0 0 0 2px var(--color-ring);
 }
 
 .checkbox-box {
@@ -54,12 +67,12 @@ const emit = defineEmits<{
   transition: background-color 0.15s, border-color 0.15s;
 }
 
-.checkbox-root[data-state='checked'] .checkbox-box {
+.checkbox-root[aria-checked='true'] .checkbox-box {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
 }
 
-.checkbox-root[data-disabled] .checkbox-box {
+.checkbox-root:disabled .checkbox-box {
   opacity: 0.5;
   cursor: not-allowed;
 }

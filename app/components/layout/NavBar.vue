@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Button } from '@/components/ui/button'
-import { CalendarDays, Users, Tags, Settings, ScrollText } from 'lucide-vue-next'
+import { CalendarDays, Users, Tags, Settings, ScrollText, Star } from 'lucide-vue-next'
 
 interface NavRoute {
   path: string
@@ -15,6 +15,7 @@ const route = useRoute()
 
 const routes: NavRoute[] = [
   { path: '/events', name: 'Events', icon: CalendarDays },
+  { path: '/current-day', name: 'Current Day', icon: Star },
   { path: '/characters', name: 'Characters', icon: Users },
   { path: '/groups', name: 'Groups', icon: Tags },
   { path: '/summary', name: 'Summary', icon: ScrollText },

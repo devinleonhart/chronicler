@@ -50,7 +50,7 @@ function parseDate(str: string | undefined): CalendarDate | undefined {
 const dateValue = computed(() => parseDate(props.modelValue))
 const minDate = computed(() => parseDate(props.minValue))
 const maxDate = computed(() => parseDate(props.maxValue))
-const placeholder = computed(() => parseDate(props.minValue))
+const placeholder = computed(() => parseDate(props.modelValue) ?? parseDate(props.minValue))
 
 function handleUpdate(val: DateValue | undefined) {
   emit('update:modelValue', val ? val.toString() : '')

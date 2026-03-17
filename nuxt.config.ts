@@ -2,6 +2,11 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   ssr: false,
   srcDir: 'app',
+  runtimeConfig: {
+    public: {
+      apiKey: process.env.API_KEY ?? ''
+    }
+  },
   css: ['~/assets/css/main.css'],
   modules: ['@pinia/nuxt'],
   components: {

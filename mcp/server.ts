@@ -3,11 +3,16 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod'
 
 const BASE_URL = process.env.CHRONICLER_URL ?? 'http://localhost:3000'
+const API_KEY = process.env.CHRONICLER_API_KEY
 
 async function api(method: string, path: string, body?: unknown) {
+  const headers: Record<string, string> = {}
+  if (body !== undefined) headers['Content-Type'] = 'application/json'
+  if (API_KEY) headers['Authorization'] = `Bearer ${API_KEY}`
+
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
-    headers: body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
+    headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,
   })
   const contentType = res.headers.get('content-type') ?? ''

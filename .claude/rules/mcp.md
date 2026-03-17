@@ -15,11 +15,22 @@ pnpm dev          # must be running first
 pnpm mcp          # starts the MCP server (separate terminal)
 ```
 
-The server targets `http://localhost:3000` by default. Override with:
+The server targets `http://localhost:3000` by default.
 
-```bash
-CHRONICLER_URL=http://my-server pnpm mcp
-```
+## Environment variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `CHRONICLER_URL` | No | Base URL of the Nuxt server (default: `http://localhost:3000`) |
+| `CHRONICLER_API_KEY` | When `API_KEY` is set on the server | Must match the `API_KEY` env var on the Nuxt server |
+
+## Authentication
+
+Set `API_KEY` on the Nuxt server to enable auth. When set, every `/api/*` request
+must include `Authorization: Bearer <key>` or it receives a `401`.
+
+Local dev without `API_KEY` set: no auth enforced.
+Production with `API_KEY` set: all unauthenticated requests are rejected.
 
 ## Connecting to Claude Desktop
 
@@ -32,7 +43,8 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
       "command": "pnpm",
       "args": ["--prefix", "/absolute/path/to/chronicler", "mcp"],
       "env": {
-        "CHRONICLER_URL": "http://localhost:3000"
+        "CHRONICLER_URL": "https://your-production-server.com",
+        "CHRONICLER_API_KEY": "your-secret-key"
       }
     }
   }
@@ -42,13 +54,10 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ## Connecting to Claude Code
 
 ```bash
-claude mcp add chronicler -- pnpm --prefix /absolute/path/to/chronicler mcp
-```
-
-Or with a custom URL:
-
-```bash
-claude mcp add chronicler -e CHRONICLER_URL=http://localhost:3000 -- pnpm --prefix /absolute/path/to/chronicler mcp
+claude mcp add chronicler \
+  -e CHRONICLER_URL=https://your-production-server.com \
+  -e CHRONICLER_API_KEY=your-secret-key \
+  -- pnpm --prefix /absolute/path/to/chronicler mcp
 ```
 
 ## Available tools (18)

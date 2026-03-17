@@ -6,10 +6,12 @@ export default defineEventHandler(async (event) => {
   // Only enforce auth on API routes, and only when API_KEY is configured
   if (!API_KEY || !event.path.startsWith('/api/')) return
 
-  // Allow same-origin browser requests (Origin host matches the request host)
-  const origin = getRequestHeader(event, 'origin') ?? ''
+  // Allow same-origin browser requests (Referer host matches the request host)
+  const referer = getRequestHeader(event, 'referer') ?? ''
   const host = getRequestHeader(event, 'host') ?? ''
-  if (origin && new URL(origin).host === host) return
+  try {
+    if (referer && new URL(referer).host === host) return
+  } catch { /* malformed Referer — fall through to token check */ }
 
   const header = getRequestHeader(event, 'authorization') ?? ''
   const token = header.startsWith('Bearer ') ? header.slice(7) : ''

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import type { ChronicleEvent, CreateEventRequest, UpdateEventRequest } from '@/types/store/events'
+import type { ChronicleEvent, CreateEventRequest, UpdateEventRequest, BirthDeathRow, EventListRow } from '@/types/store/events'
 import { PageLayout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,6 +29,7 @@ const viewMode = ref<'list' | 'timeline'>('list')
 const searchQuery = ref('')
 const selectedFilterGroups = ref<number[]>([])
 const selectedFilterCharacters = ref<number[]>([])
+const showBirthsDeaths = ref(false)
 
 // Sort state
 type SortKey = 'name' | 'startDate' | 'endDate'
@@ -92,6 +93,71 @@ const filteredEvents = computed(() => {
   })
 
   return result
+})
+
+const syntheticRows = computed<BirthDeathRow[]>(() => {
+  if (!showBirthsDeaths.value) return []
+  const rows: BirthDeathRow[] = []
+  for (const char of characters.value) {
+    rows.push({
+      kind: 'birth',
+      characterId: char.id,
+      name: `${char.name} born`,
+      startDate: char.birthDate,
+      endDate: null,
+      character: char
+    })
+    if (char.deathDate) {
+      rows.push({
+        kind: 'death',
+        characterId: char.id,
+        name: `${char.name} died`,
+        startDate: char.deathDate,
+        endDate: null,
+        character: char
+      })
+    }
+  }
+  return rows
+})
+
+const filteredSyntheticRows = computed<BirthDeathRow[]>(() => {
+  let result = syntheticRows.value
+
+  const q = searchQuery.value.toLowerCase().trim()
+  if (q) {
+    result = result.filter(r => r.character.name.toLowerCase().includes(q))
+  }
+
+  const hasGroupFilter = selectedFilterGroups.value.length > 0
+  const hasCharFilter = selectedFilterCharacters.value.length > 0
+
+  if (hasGroupFilter || hasCharFilter) {
+    result = result.filter(r => {
+      if (hasCharFilter && selectedFilterCharacters.value.includes(r.characterId)) return true
+      if (hasGroupFilter) {
+        const groupCharIds = new Set(
+          groups.value
+            .filter(g => selectedFilterGroups.value.includes(g.id))
+            .flatMap(g => g.characterGroups.map(cg => cg.characterId))
+        )
+        if (groupCharIds.has(r.characterId)) return true
+      }
+      return false
+    })
+  }
+
+  return result
+})
+
+const displayedRows = computed<EventListRow[]>(() => {
+  const merged: EventListRow[] = [...filteredEvents.value, ...filteredSyntheticRows.value]
+  return merged.sort((a, b) => {
+    const dir = sortDir.value === 'asc' ? 1 : -1
+    const aVal = a[sortKey.value] ?? ''
+    const bVal = b[sortKey.value] ?? ''
+    return aVal < bVal ? -dir : aVal > bVal ? dir : 0
+  })
 })
 
 onMounted(async () => {
@@ -239,6 +305,21 @@ const hasActiveFilters = computed(() =>
         </button>
       </div>
 
+      <div v-if="characters.length > 0" class="filter-divider" />
+
+      <template v-if="characters.length > 0">
+        <span class="filter-label">Show:</span>
+        <div class="filter-chips">
+          <button
+            class="filter-chip"
+            :class="{ active: showBirthsDeaths }"
+            @click="showBirthsDeaths = !showBirthsDeaths"
+          >
+            Births &amp; Deaths
+          </button>
+        </div>
+      </template>
+
       <button
         v-if="hasActiveFilters"
         class="clear-filters"
@@ -272,7 +353,7 @@ const hasActiveFilters = computed(() =>
     <template v-else>
       <EventList
         v-if="viewMode === 'list'"
-        :events="filteredEvents"
+        :events="displayedRows"
         :sort-key="sortKey"
         :sort-dir="sortDir"
         @sort="toggleSort"
@@ -348,6 +429,13 @@ const hasActiveFilters = computed(() =>
   background-color: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-primary-foreground);
+}
+
+.filter-divider {
+  width: 1px;
+  height: 1.25rem;
+  background-color: var(--color-border);
+  flex-shrink: 0;
 }
 
 .clear-filters {

@@ -1,3 +1,5 @@
+import type { Character } from './characters'
+
 export interface EventCharacter {
   eventId: number
   characterId: number
@@ -35,3 +37,14 @@ export interface UpdateEventRequest {
   endDate?: string | null
   characterIds?: number[]
 }
+
+export interface BirthDeathRow {
+  kind: 'birth' | 'death'
+  characterId: number
+  name: string
+  startDate: string
+  endDate: null
+  character: Character
+}
+
+export type EventListRow = ChronicleEvent | BirthDeathRow

@@ -28,10 +28,12 @@
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx server/db/seed.ts",
-    "db:merge-characters": "tsx server/db/mergeCharacters.ts"
+    "db:merge-characters": "tsx server/db/mergeCharacters.ts",
+    "mcp": "tsx mcp/server.ts"
   },
   "dependencies": {
     "@internationalized/date": "^3.12.0",
+    "@modelcontextprotocol/sdk": "^1.27.1",
     "@pinia/nuxt": "^0.11.3",
     "axios": "^1.13.6",
     "drizzle-orm": "^0.45.1",
@@ -44,7 +46,8 @@
     "tsx": "^4.21.0",
     "vis-data": "^8.0.3",
     "vis-timeline": "^8.5.0",
-    "vue": "^3.5.29"
+    "vue": "^3.5.29",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.3",

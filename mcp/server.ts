@@ -28,8 +28,17 @@ const server = new McpServer({ name: 'chronicler', version: '1.0.0' })
 
 // ── Characters ────────────────────────────────────────────────────────────────
 
-server.tool('list_characters', 'List all characters with their group memberships', {}, async () => {
-  const { data } = await api('GET', '/api/characters')
+server.tool('list_characters', 'List all characters with their group memberships', {
+  name: z.string().optional().describe('Filter by name (case-insensitive partial match)'),
+  groupId: z.number().int().positive().optional().describe('Filter to characters belonging to this group ID'),
+  birthYear: z.number().int().positive().optional().describe('Filter to characters born in this year'),
+}, async ({ name, groupId, birthYear }) => {
+  const params = new URLSearchParams()
+  if (name) params.set('name', name)
+  if (groupId !== undefined) params.set('groupId', String(groupId))
+  if (birthYear !== undefined) params.set('birthYear', String(birthYear))
+  const qs = params.toString()
+  const { data } = await api('GET', `/api/characters${qs ? `?${qs}` : ''}`)
   return result(data)
 })
 
@@ -108,8 +117,19 @@ server.tool('delete_group', 'Delete a group by ID (does not delete its members)'
 
 // ── Events ────────────────────────────────────────────────────────────────────
 
-server.tool('list_events', 'List all events with their characters', {}, async () => {
-  const { data } = await api('GET', '/api/events')
+server.tool('list_events', 'List all events with their characters', {
+  name: z.string().optional().describe('Filter by name (case-insensitive partial match)'),
+  characterId: z.number().int().positive().optional().describe('Filter to events featuring this character ID'),
+  startAfter: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe('Filter to events starting on or after this date (YYYY-MM-DD)'),
+  startBefore: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe('Filter to events starting on or before this date (YYYY-MM-DD)'),
+}, async ({ name, characterId, startAfter, startBefore }) => {
+  const params = new URLSearchParams()
+  if (name) params.set('name', name)
+  if (characterId !== undefined) params.set('characterId', String(characterId))
+  if (startAfter) params.set('startAfter', startAfter)
+  if (startBefore) params.set('startBefore', startBefore)
+  const qs = params.toString()
+  const { data } = await api('GET', `/api/events${qs ? `?${qs}` : ''}`)
   return result(data)
 })
 

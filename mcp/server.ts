@@ -49,6 +49,13 @@ server.tool('get_character', 'Get a single character by ID', {
   return result(data)
 })
 
+server.tool('get_character_events', 'Get all events for a character, ordered chronologically', {
+  id: z.number().int().positive().describe('Character ID'),
+}, async ({ id }) => {
+  const { data } = await api('GET', `/api/characters/${id}/events`)
+  return result(data)
+})
+
 server.tool('create_character', 'Create a new character', {
   name: z.string().min(1).describe('Character name'),
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Birth date (YYYY-MM-DD)'),

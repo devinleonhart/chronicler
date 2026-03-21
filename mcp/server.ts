@@ -42,6 +42,14 @@ server.tool('list_characters', 'List all characters with their group memberships
   return result(data)
 })
 
+server.tool('find_placeholder_characters', 'Find characters with a placeholder birth date (default: 2200-01-01)', {
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe('Placeholder birth date to match (YYYY-MM-DD); defaults to 2200-01-01'),
+}, async ({ birthDate }) => {
+  const qs = birthDate ? `?birthDate=${birthDate}` : ''
+  const { data } = await api('GET', `/api/characters/placeholders${qs}`)
+  return result(data)
+})
+
 server.tool('get_character', 'Get a single character by ID', {
   id: z.number().int().positive().describe('Character ID'),
 }, async ({ id }) => {

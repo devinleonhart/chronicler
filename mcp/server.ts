@@ -161,6 +161,38 @@ server.tool('update_event', 'Update an existing event', {
   return result(data)
 })
 
+server.tool('add_character_to_event', 'Add a single character to an existing event', {
+  eventId: z.number().int().positive().describe('Event ID'),
+  characterId: z.number().int().positive().describe('Character ID to add'),
+}, async ({ eventId, characterId }) => {
+  const { data } = await api('POST', `/api/events/${eventId}/characters`, { characterId })
+  return result(data)
+})
+
+server.tool('remove_character_from_event', 'Remove a single character from an existing event', {
+  eventId: z.number().int().positive().describe('Event ID'),
+  characterId: z.number().int().positive().describe('Character ID to remove'),
+}, async ({ eventId, characterId }) => {
+  const { data } = await api('DELETE', `/api/events/${eventId}/characters/${characterId}`)
+  return result(data)
+})
+
+server.tool('add_group_to_character', 'Add a single group membership to a character', {
+  characterId: z.number().int().positive().describe('Character ID'),
+  groupId: z.number().int().positive().describe('Group ID to add'),
+}, async ({ characterId, groupId }) => {
+  const { data } = await api('POST', `/api/characters/${characterId}/groups`, { groupId })
+  return result(data)
+})
+
+server.tool('remove_group_from_character', 'Remove a single group membership from a character', {
+  characterId: z.number().int().positive().describe('Character ID'),
+  groupId: z.number().int().positive().describe('Group ID to remove'),
+}, async ({ characterId, groupId }) => {
+  const { data } = await api('DELETE', `/api/characters/${characterId}/groups/${groupId}`)
+  return result(data)
+})
+
 server.tool('delete_event', 'Delete an event by ID (cannot delete the Current Day event)', {
   id: z.number().int().positive().describe('Event ID'),
 }, async ({ id }) => {

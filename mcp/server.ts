@@ -77,6 +77,19 @@ server.tool('update_character', 'Update an existing character', {
   return result(data)
 })
 
+server.tool('bulk_update_characters', 'Update multiple characters in a single transaction', {
+  updates: z.array(z.object({
+    id: z.number().int().positive().describe('Character ID'),
+    name: z.string().min(1).optional().describe('New name'),
+    birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe('New birth date (YYYY-MM-DD)'),
+    deathDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional().describe('New death date (YYYY-MM-DD), or null to clear'),
+    groupIds: z.array(z.number().int().positive()).optional().describe('Full replacement list of group IDs'),
+  })).min(1).describe('List of character updates to apply'),
+}, async ({ updates }) => {
+  const { data } = await api('PUT', '/api/characters/bulk', { updates })
+  return result(data)
+})
+
 server.tool('delete_character', 'Delete a character by ID', {
   id: z.number().int().positive().describe('Character ID'),
 }, async ({ id }) => {

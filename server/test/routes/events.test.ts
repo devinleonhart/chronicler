@@ -282,4 +282,151 @@ describe('Event Routes', () => {
         .expect(404)
     })
   })
+
+  describe('GET /api/events (filters)', () => {
+    it('should filter by name (case-insensitive partial match)', async () => {
+      await createTestEvent({ name: 'The Battle', startDate: '0450-06-01' })
+      await createTestEvent({ name: 'The Council', startDate: '0460-01-01' })
+
+      const response = await request(app)
+        .get('/api/events?name=battle')
+        .expect(200)
+
+      expect(response.body).toHaveLength(1)
+      expect(response.body[0].name).toBe('The Battle')
+    })
+
+    it('should filter by characterId', async () => {
+      const char = await createTestCharacter({ name: 'Aria', birthDate: '0400-03-15' })
+      const ev1 = await createTestEvent({ name: 'Battle', startDate: '0450-06-01' })
+      const ev2 = await createTestEvent({ name: 'Council', startDate: '0460-01-01' })
+      await testDb.insert(tables.eventCharacter).values({ eventId: ev1!.id, characterId: char!.id })
+
+      const response = await request(app)
+        .get(`/api/events?characterId=${char!.id}`)
+        .expect(200)
+
+      expect(response.body).toHaveLength(1)
+      expect(response.body[0].name).toBe('Battle')
+      void ev2
+    })
+
+    it('should filter by startAfter', async () => {
+      await createTestEvent({ name: 'Early', startDate: '0400-01-01' })
+      await createTestEvent({ name: 'Late', startDate: '0500-01-01' })
+
+      const response = await request(app)
+        .get('/api/events?startAfter=0450-01-01')
+        .expect(200)
+
+      expect(response.body).toHaveLength(1)
+      expect(response.body[0].name).toBe('Late')
+    })
+
+    it('should filter by startBefore', async () => {
+      await createTestEvent({ name: 'Early', startDate: '0400-01-01' })
+      await createTestEvent({ name: 'Late', startDate: '0500-01-01' })
+
+      const response = await request(app)
+        .get('/api/events?startBefore=0450-01-01')
+        .expect(200)
+
+      expect(response.body).toHaveLength(1)
+      expect(response.body[0].name).toBe('Early')
+    })
+  })
+
+  describe('POST /api/events/:id/characters', () => {
+    it('should add a character to an event', async () => {
+      const ev = await createTestEvent({ name: 'The Battle', startDate: '0450-06-01' })
+      const char = await createTestCharacter({ name: 'Aria', birthDate: '0400-03-15' })
+
+      const response = await request(app)
+        .post(`/api/events/${ev!.id}/characters`)
+        .send({ characterId: char!.id })
+        .expect(200)
+
+      expect(response.body.eventCharacters).toHaveLength(1)
+      expect(response.body.eventCharacters[0].character.name).toBe('Aria')
+    })
+
+    it('should be idempotent (adding same character twice is fine)', async () => {
+      const ev = await createTestEvent({ name: 'The Battle', startDate: '0450-06-01' })
+      const char = await createTestCharacter({ name: 'Aria', birthDate: '0400-03-15' })
+
+      await request(app).post(`/api/events/${ev!.id}/characters`).send({ characterId: char!.id }).expect(200)
+      const response = await request(app).post(`/api/events/${ev!.id}/characters`).send({ characterId: char!.id }).expect(200)
+
+      expect(response.body.eventCharacters).toHaveLength(1)
+    })
+
+    it('should return 404 for non-existent event', async () => {
+      const char = await createTestCharacter({ name: 'Aria', birthDate: '0400-03-15' })
+      await request(app)
+        .post('/api/events/9999/characters')
+        .send({ characterId: char!.id })
+        .expect(404)
+    })
+
+    it('should return 400 for invalid characterId', async () => {
+      const ev = await createTestEvent({ name: 'The Battle', startDate: '0450-06-01' })
+      await request(app)
+        .post(`/api/events/${ev!.id}/characters`)
+        .send({ characterId: 'bad' })
+        .expect(400)
+    })
+
+    it('should return 400 if character was not yet born', async () => {
+      const ev = await createTestEvent({ name: 'Early Battle', startDate: '0450-01-01' })
+      const char = await createTestCharacter({ name: 'Future Hero', birthDate: '0500-01-01' })
+
+      await request(app)
+        .post(`/api/events/${ev!.id}/characters`)
+        .send({ characterId: char!.id })
+        .expect(400)
+    })
+
+    it('should return 400 if character was already dead', async () => {
+      const ev = await createTestEvent({ name: 'Later Battle', startDate: '0450-01-01' })
+      const char = await createTestCharacter({ name: 'Old Mage', birthDate: '0300-01-01', deathDate: '0400-12-31' })
+
+      await request(app)
+        .post(`/api/events/${ev!.id}/characters`)
+        .send({ characterId: char!.id })
+        .expect(400)
+    })
+  })
+
+  describe('DELETE /api/events/:id/characters/:characterId', () => {
+    it('should remove a character from an event', async () => {
+      const ev = await createTestEvent({ name: 'The Battle', startDate: '0450-06-01' })
+      const char = await createTestCharacter({ name: 'Aria', birthDate: '0400-03-15' })
+      await testDb.insert(tables.eventCharacter).values({ eventId: ev!.id, characterId: char!.id })
+
+      const response = await request(app)
+        .delete(`/api/events/${ev!.id}/characters/${char!.id}`)
+        .expect(200)
+
+      expect(response.body.eventCharacters).toHaveLength(0)
+    })
+
+    it('should return 404 for non-existent event', async () => {
+      await request(app)
+        .delete('/api/events/9999/characters/1')
+        .expect(404)
+    })
+
+    it('should return 400 for invalid event id', async () => {
+      await request(app)
+        .delete('/api/events/abc/characters/1')
+        .expect(400)
+    })
+
+    it('should return 400 for invalid character id', async () => {
+      const ev = await createTestEvent({ name: 'The Battle', startDate: '0450-06-01' })
+      await request(app)
+        .delete(`/api/events/${ev!.id}/characters/abc`)
+        .expect(400)
+    })
+  })
 })

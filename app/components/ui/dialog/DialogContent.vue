@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { DialogContent, DialogClose } from 'radix-vue'
-import { X } from 'lucide-vue-next'
+import { DialogContent, DialogClose } from 'reka-ui'
+import { X } from '@lucide/vue'
 
 interface Props {
   class?: string

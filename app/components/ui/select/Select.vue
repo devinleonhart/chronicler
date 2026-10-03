@@ -9,8 +9,8 @@ import {
   SelectItem,
   SelectItemText,
   SelectItemIndicator
-} from 'radix-vue'
-import { Check, ChevronDown } from 'lucide-vue-next'
+} from 'reka-ui'
+import { Check, ChevronDown } from '@lucide/vue'
 
 interface Option {
   value: string

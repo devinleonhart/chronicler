@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ToastRoot, ToastTitle, ToastDescription, ToastClose } from 'radix-vue'
-import { X } from 'lucide-vue-next'
+import { ToastRoot, ToastTitle, ToastDescription, ToastClose } from 'reka-ui'
+import { X } from '@lucide/vue'
 
 interface Props {
   variant?: 'default' | 'success' | 'destructive'

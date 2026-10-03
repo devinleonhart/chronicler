@@ -1,12 +1,12 @@
-FROM node:24.14.0-slim AS base
+FROM node:24.21.0-slim AS base
 
-RUN corepack enable && corepack prepare pnpm@10.30.3 --activate
+RUN corepack enable && corepack prepare pnpm@12.8.1 --activate
 
 WORKDIR /app
 
-COPY pnpm-lock.yaml package.json ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 
-RUN pnpm install --shamefully-hoist --ignore-scripts=false
+RUN pnpm install --frozen-lockfile
 
 # Development stage
 FROM base AS development
@@ -32,11 +32,11 @@ RUN node_modules/.bin/esbuild server/db/migrate.ts \
       --external:pg-native \
       "--banner:js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);" \
       --outfile=.output/migrations/migrate.mjs && \
-    cp server/db/*.sql .output/migrations/ 2>/dev/null || true && \
-    cp -r server/db/meta .output/migrations/meta 2>/dev/null || true
+    cp server/db/*.sql .output/migrations/ && \
+    cp -r server/db/meta .output/migrations/meta
 
 # Production stage
-FROM node:24.14.0-slim AS production
+FROM node:24.21.0-slim AS production
 
 WORKDIR /app
 

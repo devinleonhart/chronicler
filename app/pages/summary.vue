@@ -5,7 +5,7 @@ import { PageLayout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import axios from 'axios'
-import { Search, Copy, Check, Loader2, FileText } from 'lucide-vue-next'
+import { Search, Copy, Check, LoaderCircle, FileText } from '@lucide/vue'
 
 const charactersStore = useCharactersStore()
 const groupsStore = useGroupsStore()
@@ -125,7 +125,7 @@ async function copyText() {
         </div>
 
         <div v-if="isLoading" class="loading-center">
-          <Loader2 />
+          <LoaderCircle />
         </div>
 
         <div v-else class="picker-body">
@@ -173,7 +173,7 @@ async function copyText() {
             class="generate-btn"
             @click="generate"
           >
-            <Loader2 v-if="isGenerating" class="spin" />
+            <LoaderCircle v-if="isGenerating" class="spin" />
             <FileText v-else />
             Generate Summary
           </Button>

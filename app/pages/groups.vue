@@ -6,7 +6,7 @@ import { PageLayout } from '@/components/layout'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { GroupList, GroupForm } from '@/components/features/groups'
-import { Search, Loader2, Plus } from 'lucide-vue-next'
+import { Search, LoaderCircle, Plus } from '@lucide/vue'
 
 const groupsStore = useGroupsStore()
 const { groups } = storeToRefs(groupsStore)
@@ -103,7 +103,7 @@ async function handleDeleteGroup(id: number) {
     </template>
 
     <div v-if="isLoading" class="loading-center">
-      <Loader2 />
+      <LoaderCircle />
     </div>
 
     <div v-else-if="filteredItems.length === 0" class="empty-state">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DialogRoot, DialogPortal, DialogOverlay } from 'radix-vue'
+import { DialogRoot, DialogPortal, DialogOverlay } from 'reka-ui'
 
 interface Props {
   open?: boolean

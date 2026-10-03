@@ -6,7 +6,7 @@ A full-stack web app for managing fictional universe timelines — characters, g
 
 - **Frontend**: Nuxt 4 (SPA mode, `ssr: false`), Vue 3, Pinia, Radix Vue, vis-timeline
 - **Backend**: H3 (Nuxt server routes), Drizzle ORM
-- **Database**: PostgreSQL 17 — `chronicler_dev` (port 5432), `chronicler_test` (port 5433)
+- **Database**: PostgreSQL 18 — `chronicler_dev` (port 5432), `chronicler_test` (port 5433)
 - **Package manager**: pnpm
 - **Language**: TypeScript throughout
 

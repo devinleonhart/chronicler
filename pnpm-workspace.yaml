@@ -1,0 +1,12 @@
+# Only install versions that have been public for at least a day. Set explicitly
+# so the check is strict: pnpm fails instead of silently adding exemptions.
+minimumReleaseAge: 1440
+
+allowBuilds:
+  esbuild: true
+  # Its postinstall only switches Vue 2/3 shims; the shipped default is already Vue 3.
+  vue-demi: false
+
+overrides:
+  'yaml@>=2.0.0 <2.8.3': ^2.8.3
+  '@esbuild-kit/core-utils>esbuild': ^0.25.12

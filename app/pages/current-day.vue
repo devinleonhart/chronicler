@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia'
 import { PageLayout } from '@/components/layout'
 import { CharacterForm } from '@/components/features/characters'
 import { calculateAge } from '@/lib/ageCalculator'
-import { Users, Skull } from 'lucide-vue-next'
+import { Users, Skull } from '@lucide/vue'
 import type { Character, UpdateCharacterRequest } from '@/types/store/characters'
 
 const settingsStore = useSettingsStore()

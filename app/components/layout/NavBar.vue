@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Button } from '@/components/ui/button'
-import { CalendarDays, Users, Tags, Settings, ScrollText, Star } from 'lucide-vue-next'
+import { CalendarDays, Users, Tags, Settings, ScrollText, Star } from '@lucide/vue'
 
 interface NavRoute {
   path: string

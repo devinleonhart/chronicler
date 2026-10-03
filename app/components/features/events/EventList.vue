@@ -9,7 +9,7 @@ import {
   TableHead,
   TableCell
 } from '@/components/ui/table'
-import { Pencil, Trash2, Star, ExternalLink, ChevronUp, ChevronDown, ChevronsUpDown, Skull, Sparkles } from 'lucide-vue-next'
+import { Pencil, Trash2, Star, ExternalLink, ChevronUp, ChevronDown, ChevronsUpDown, Skull, Sparkles } from '@lucide/vue'
 import { calculateAge, formatAge } from '@/lib/ageCalculator'
 import { useRouter } from 'vue-router'
 

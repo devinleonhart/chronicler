@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DateField } from '@/components/ui/date-field'
-import { Search, Check } from 'lucide-vue-next'
+import { Search, Check } from '@lucide/vue'
 
 const settingsStore = useSettingsStore()
 const { settings } = storeToRefs(settingsStore)

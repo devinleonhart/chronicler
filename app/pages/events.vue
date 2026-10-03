@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { EventList, EventForm, EventTimelineView } from '@/components/features/events'
-import { Search, Plus, List, BarChart2, Loader2 } from 'lucide-vue-next'
+import { Search, Plus, List, ChartNoAxesColumn, LoaderCircle } from '@lucide/vue'
 
 const eventsStore = useEventsStore()
 const charactersStore = useCharactersStore()
@@ -279,7 +279,7 @@ const hasActiveFilters = computed(() =>
             size="sm"
             @click="viewMode = 'timeline'"
           >
-            <BarChart2 />
+            <ChartNoAxesColumn />
           </Button>
         </div>
         <Button @click="handleAddEvent">
@@ -343,7 +343,7 @@ const hasActiveFilters = computed(() =>
     </div>
 
     <div v-if="isLoading" class="loading-center">
-      <Loader2 />
+      <LoaderCircle />
     </div>
 
     <div v-else-if="filteredEvents.length === 0" class="empty-state">

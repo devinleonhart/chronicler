@@ -18,9 +18,9 @@ import {
   DatePickerHeadCell,
   DatePickerCell,
   DatePickerCellTrigger
-} from 'radix-vue'
+} from 'reka-ui'
 import { CalendarDate, type DateValue } from '@internationalized/date'
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { Calendar, ChevronLeft, ChevronRight } from '@lucide/vue'
 
 interface Props {
   modelValue?: string

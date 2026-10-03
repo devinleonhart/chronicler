@@ -9,7 +9,7 @@ import {
   TableHead,
   TableCell
 } from '@/components/ui/table'
-import { Pencil, Trash2 } from 'lucide-vue-next'
+import { Pencil, Trash2 } from '@lucide/vue'
 
 interface Props {
   groups: Group[]

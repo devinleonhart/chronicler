@@ -1,5 +1,4 @@
 import { eventHandler, getRouterParam, readBody, setResponseStatus } from 'h3'
-import { eq } from 'drizzle-orm'
 import { db } from '../../../../utils/db.js'
 import { handleUnknownError } from '../../../../utils/handleUnknownError.js'
 import { parseId } from '../../../../utils/parseId.js'

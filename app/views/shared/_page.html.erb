@@ -1,0 +1,20 @@
+<%# locals: (title:, description: nil) -%>
+<%# Rendered first, since it may fill page_actions. %>
+<% body = capture { yield } %>
+<% content_for(:title, "#{title} | Chronicler") %>
+<section class="bb-page">
+  <div class="bb-container">
+    <div class="bb-page-header">
+      <h1 class="bb-heading-xl"><%= title %></h1>
+      <% if description %>
+        <p class="bb-subtitle"><%= description %></p>
+      <% end %>
+    </div>
+
+    <% if content_for?(:page_actions) %>
+      <div class="flex flex-col sm:flex-row gap-3 mb-6"><%= content_for(:page_actions) %></div>
+    <% end %>
+
+    <%= body %>
+  </div>
+</section>

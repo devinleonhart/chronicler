@@ -1,0 +1,48 @@
+<%= render "shared/page", title: "Characters", description: pluralize(@total, "character") do %>
+  <% content_for(:page_actions) do %>
+    <%= render "shared/search", path: characters_path, label: "Search characters", query: @query %>
+    <%= link_to "Add Character", new_character_path, data: { turbo_frame: "dialog" }, class: "bb-btn-sm bb-btn-primary text-center" %>
+  <% end %>
+
+  <%= turbo_frame_tag "results", target: "_top" do %>
+    <% if @characters.empty? %>
+      <div class="bb-empty-state bb-empty-state__text">
+        <%= @query.present? ? "No characters match \"#{@query}\"" : "No characters yet. Add your first character!" %>
+      </div>
+    <% else %>
+      <div class="bb-card overflow-x-auto">
+        <table class="bb-table">
+          <thead>
+            <tr>
+              <th>Name</th><th>Birth Date</th><th>Death Date</th><th>Groups</th><th><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @characters.each do |character| %>
+              <tr>
+                <td class="font-medium"><%= character.name %></td>
+                <td class="bb-subtitle whitespace-nowrap"><%= character.birth_date %></td>
+                <td class="bb-subtitle whitespace-nowrap"><%= character.death_date || "—" %></td>
+                <td>
+                  <div class="flex flex-wrap gap-1">
+                    <% character.groups.sort_by(&:name).each do |group| %>
+                      <span class="bb-badge bb-badge-neutral"><%= group.name %></span>
+                    <% end %>
+                    <% if character.groups.empty? %><span class="bb-subtitle">—</span><% end %>
+                  </div>
+                </td>
+                <td>
+                  <div class="flex justify-end gap-4">
+                    <%= link_to "Edit", edit_character_path(character), data: { turbo_frame: "dialog" }, class: "bb-link", aria: { label: "Edit #{character.name}" } %>
+                    <%= delete_button "Delete #{character.name}", character_path(character), title: "Delete Character",
+                                      message: "Are you sure you want to delete this character? This will remove them from all events." %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

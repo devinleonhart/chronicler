@@ -1,0 +1,40 @@
+<%= render "shared/page", title: "Groups", description: pluralize(@total, "group") do %>
+  <% content_for(:page_actions) do %>
+    <%= render "shared/search", path: groups_path, label: "Search groups", query: @query %>
+    <%= link_to "Add Group", new_group_path, data: { turbo_frame: "dialog" }, class: "bb-btn-sm bb-btn-primary text-center" %>
+  <% end %>
+
+  <%= turbo_frame_tag "results", target: "_top" do %>
+    <% if @groups.empty? %>
+      <div class="bb-empty-state bb-empty-state__text">
+        <%= @query.present? ? "No groups match \"#{@query}\"" : "No groups yet. Add your first group!" %>
+      </div>
+    <% else %>
+      <div class="bb-card overflow-x-auto">
+        <table class="bb-table">
+          <thead>
+            <tr><th>Name</th><th>Members</th><th><span class="sr-only">Actions</span></th></tr>
+          </thead>
+          <tbody>
+            <% @groups.each do |group| %>
+              <% names = group.characters.map(&:name).sort %>
+              <tr>
+                <td class="font-medium"><%= group.name %></td>
+                <td class="bb-subtitle">
+                  <span class="bb-badge bb-badge-neutral mr-2"><%= names.size %></span><%= names.join(", ") %>
+                </td>
+                <td>
+                  <div class="flex justify-end gap-4">
+                    <%= link_to "Edit", edit_group_path(group), data: { turbo_frame: "dialog" }, class: "bb-link", aria: { label: "Edit #{group.name}" } %>
+                    <%= delete_button "Delete #{group.name}", group_path(group), title: "Delete Group",
+                                      message: "Are you sure you want to delete this group? Characters will remain but lose this group assignment." %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

@@ -1,0 +1,25 @@
+<% content_for(:title, "Sign In | Chronicler") %>
+<%# A dialog or list that meets this page instead of its own content gives way to it. %>
+<% content_for(:head) { tag.meta(name: "turbo-visit-control", content: "reload") } if turbo_frame_request? %>
+<section class="bb-page">
+  <div class="bb-container-xs">
+    <div class="bb-page-header">
+      <h1 class="bb-heading-xl">Welcome Back</h1>
+      <p class="bb-subtitle">Sign in to your account</p>
+    </div>
+
+    <%= form_with(url: session_path, class: "bb-card bb-card--form") do |form| %>
+      <div class="bb-field">
+        <%= form.label :email_address, "Email", class: "bb-label" %>
+        <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", class: "bb-input" %>
+      </div>
+
+      <div class="bb-field-lg">
+        <%= form.label :password, class: "bb-label" %>
+        <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72, class: "bb-input" %>
+      </div>
+
+      <%= form.submit "Sign In", class: "bb-btn bb-btn-primary bb-btn--full" %>
+    <% end %>
+  </div>
+</section>

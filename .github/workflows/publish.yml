@@ -24,7 +24,7 @@ jobs:
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
-          target: development
+          target: dev
           load: true
           tags: chronicler:test
           cache-from: type=gha
@@ -38,14 +38,15 @@ jobs:
             -e POSTGRES_PASSWORD=postgres \
             -e POSTGRES_DB=chronicler_test \
             postgres:18.6
-          sleep 5
+          timeout 60 sh -c 'until docker exec postgres-test pg_isready -h 127.0.0.1 -U postgres; do sleep 1; done'
 
-      - name: Run tests, lint, and typecheck
+      - name: Run linters, security scans and specs
         run: |
           docker run --rm --network chronicler-test-net \
+            -v "$GITHUB_WORKSPACE:/app" \
+            -e RAILS_ENV=test \
             -e TEST_DATABASE_URL=postgresql://postgres:postgres@postgres-test:5432/chronicler_test \
-            -e NODE_ENV=test \
-            chronicler:test sh -c "pnpm run quality"
+            chronicler:test bin/ci
 
       - name: Cleanup
         if: always()
@@ -84,7 +85,7 @@ jobs:
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
-          target: production
+          target: runtime
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

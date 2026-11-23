@@ -1,0 +1,52 @@
+<% content_for(:head, stylesheet_link_tag("vis-timeline", "data-turbo-track": "dynamic")) %>
+<%= render "shared/page", title: "Events", description: @universe.name do %>
+  <% content_for(:page_actions) do %>
+    <%= form_with url: events_path, method: :get, id: "filters", class: "flex-1 space-y-4",
+                  data: { controller: "search", action: "input->search#submit", turbo_frame: "results", turbo_action: "replace" } do |form| %>
+      <%= form.search_field :q, value: @listing.query, placeholder: "Search events...", aria: { label: "Search events" },
+                                autocomplete: "off", class: "bb-input" %>
+      <div class="flex flex-wrap items-center gap-2">
+        <% @groups.each do |group| %>
+          <label class="bb-chip">
+            <%= check_box_tag "group_ids[]", group.id, @listing.group_ids.include?(group.id), id: nil, class: "bb-chip__input sr-only" %>
+            <%= group.name %>
+          </label>
+        <% end %>
+        <label class="bb-chip">
+          <%= check_box_tag "births", "1", @listing.births, id: nil, class: "bb-chip__input sr-only" %>
+          Births &amp; Deaths
+        </label>
+      </div>
+    <% end %>
+    <div>
+      <%= link_to "Add Event", new_event_path, data: { turbo_frame: "dialog" }, class: "inline-block bb-btn-sm bb-btn-primary text-center" %>
+    </div>
+  <% end %>
+
+  <%= turbo_frame_tag "results", target: "_top" do %>
+    <%# These follow the links below, so they are part of the frame, and belong to the form above it. %>
+    <% { sort: @listing.sort, dir: @listing.direction, view: @listing.view }.each do |name, value| %>
+      <%= hidden_field_tag name, value, id: nil, form: "filters", autocomplete: "off" %>
+    <% end %>
+
+    <div class="flex items-center gap-2 mb-4">
+      <%= view_link "List", events_path(@listing.to_params(view: "list")), current: !@listing.timeline?,
+                    data: { turbo_frame: "results", turbo_action: "replace" } %>
+      <%= view_link "Timeline", events_path(@listing.to_params(view: "timeline")), current: @listing.timeline?,
+                    data: { turbo_frame: "results", turbo_action: "replace" } %>
+      <% if @listing.filtered? %>
+        <%= link_to "Clear filters", events_path(@listing.to_params(q: nil, group_ids: nil)), class: "bb-link ml-2" %>
+      <% end %>
+    </div>
+
+    <% if @listing.timeline? ? @listing.events.empty? : @listing.rows.empty? %>
+      <div class="bb-empty-state bb-empty-state__text">
+        <%= @listing.filtered? ? "No events match the current filters." : "No events yet. Add your first event!" %>
+      </div>
+    <% elsif @listing.timeline? %>
+      <%= render "timeline" %>
+    <% else %>
+      <%= render "list" %>
+    <% end %>
+  <% end %>
+<% end %>

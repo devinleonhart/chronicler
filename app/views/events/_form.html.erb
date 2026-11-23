@@ -1,0 +1,41 @@
+<%# locals: (event:, title:, submit:) -%>
+<%= turbo_frame_tag "dialog" do %>
+  <h2 class="bb-section-heading--sm"><%= title %></h2>
+  <%= form_with model: event do |form| %>
+    <div class="bb-field">
+      <%= form.label :name, class: "bb-label" %>
+      <%= form.text_field :name, required: true, maxlength: 255, autofocus: true, autocomplete: "off", placeholder: "Event name", class: "bb-input" %>
+      <%= field_errors(event, :name) %>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div class="bb-field">
+        <%= form.label :start_date, "Start Date", class: "bb-label" %>
+        <%= date_field_for(form, :start_date, required: true) %>
+        <%= field_errors(event, :start_date) %>
+      </div>
+      <div class="bb-field">
+        <%= form.label :end_date, "End Date (optional)", class: "bb-label" %>
+        <%= date_field_for(form, :end_date) %>
+        <%= field_errors(event, :end_date) %>
+      </div>
+    </div>
+    <%= universe_hint %>
+
+    <% if event.is_current_day %>
+      <p class="bb-hint italic">The Current Day event automatically includes all characters.</p>
+    <% else %>
+      <% characters = Character.by_name.to_a %>
+      <% if characters.any? %>
+        <%= render "shared/picker", name: "event[character_ids][]", records: characters, selected: event.character_ids,
+                   legend: "Characters Present", search: "Search characters" %>
+      <% end %>
+    <% end %>
+    <%= field_errors(event, :characters) %>
+
+    <div class="bb-dialog__footer">
+      <button type="button" class="bb-btn-sm bb-btn-outline" data-action="dialog#close">Cancel</button>
+      <%= form.submit submit, class: "bb-btn-sm bb-btn-primary" %>
+    </div>
+  <% end %>
+<% end %>

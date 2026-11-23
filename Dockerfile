@@ -1,52 +1,102 @@
-FROM node:24.21.0-slim AS base
+FROM ruby:4.0.10-slim-trixie AS base
 
-RUN corepack enable && corepack prepare pnpm@12.8.1 --activate
+ENV APP_PATH=/app \
+    BUNDLE_VERSION=4.0.22 \
+    BUNDLE_PATH=/usr/local/bundle/gems \
+    RAILS_PORT=3000
 
-WORKDIR /app
+WORKDIR $APP_PATH
 
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+# Runtime libraries. Debian's libpq (postgresql-client) speaks to any modern
+# server, so the client version no longer has to track the prod Postgres major.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    postgresql-client \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pnpm install --frozen-lockfile
+RUN gem install bundler --version "$BUNDLE_VERSION" --no-document
 
-# Development stage
-FROM base AS development
+FROM base AS build_base
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    libpq-dev \
+    libyaml-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+FROM build_base AS dev
+
+# Chromium runs the system specs. The conversion spec needs a pg_dump at least as
+# new as the server, and Debian's is older, so it comes from PostgreSQL's own repository.
+RUN curl -fsSL -o /etc/apt/keyrings/pgdg.asc --create-dirs https://www.postgresql.org/media/keys/ACCC4CF8.asc && \
+    echo "deb [signed-by=/etc/apt/keyrings/pgdg.asc] https://apt.postgresql.org/pub/repos/apt trixie-pgdg main" \
+      > /etc/apt/sources.list.d/pgdg.list && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    chromium \
+    postgresql-client-18 \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV RAILS_ENV=development
+
+COPY Gemfile Gemfile.lock ./
+RUN bundle install --jobs 4 --retry 3
+
+# The specs run the MCP server, which has its own gems.
+COPY mcp/Gemfile mcp/Gemfile.lock ./mcp/
+RUN BUNDLE_GEMFILE=mcp/Gemfile bundle install --jobs 4 --retry 3
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:$RAILS_PORT/up || exit 1
+
+COPY --chmod=755 ./entrypoints/development.sh /usr/local/bin/development.sh
+
+EXPOSE $RAILS_PORT
+
+ENTRYPOINT ["development.sh"]
+CMD ["puma", "-C", "config/puma.rb"]
+
+FROM build_base AS builder
+
+ENV BUNDLE_WITHOUT=development:test \
+    BUNDLE_DEPLOYMENT=1 \
+    BUNDLE_FROZEN=1 \
+    RAILS_ENV=production
+
+COPY Gemfile Gemfile.lock ./
+RUN bundle install --jobs 4 --retry 3 && \
+    bundle clean --force && \
+    rm -rf /usr/local/bundle/cache/*.gem
 
 COPY . .
 
-RUN pnpm nuxt prepare
+RUN SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile
 
-CMD ["pnpm", "run", "dev"]
+FROM base AS runtime
 
-# Build stage
-FROM base AS build
+ENV BUNDLE_WITHOUT=development:test \
+    BUNDLE_DEPLOYMENT=1 \
+    BUNDLE_FROZEN=1 \
+    RAILS_ENV=production \
+    BOOTSNAP_CACHE_DIR=/tmp/bootsnap \
+    MALLOC_ARENA_MAX=2
 
-COPY . .
+RUN groupadd --gid 1000 rails && \
+    useradd --uid 1000 --gid rails --create-home --shell /bin/bash rails
 
-RUN pnpm run build
+COPY --from=builder /usr/local/bundle /usr/local/bundle
+COPY --from=builder --chown=rails:rails $APP_PATH $APP_PATH
 
-# Bundle the migration script as a self-contained ESM file alongside the SQL files
-RUN node_modules/.bin/esbuild server/db/migrate.ts \
-      --bundle \
-      --platform=node \
-      --format=esm \
-      --external:pg-native \
-      "--banner:js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);" \
-      --outfile=.output/migrations/migrate.mjs && \
-    cp server/db/*.sql .output/migrations/ && \
-    cp -r server/db/meta .output/migrations/meta
+COPY --chmod=755 ./entrypoints/prod.sh /usr/local/bin/prod.sh
 
-# Production stage
-FROM node:24.21.0-slim AS production
+USER rails
 
-WORKDIR /app
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:$RAILS_PORT/up || exit 1
 
-COPY --from=build /app/.output ./
-COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+EXPOSE $RAILS_PORT
 
-RUN chmod +x /app/docker-entrypoint.sh
-
-ENV NODE_ENV=production
-
-EXPOSE 3000
-
-CMD ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["prod.sh"]
+CMD ["puma", "-C", "config/puma.rb"]

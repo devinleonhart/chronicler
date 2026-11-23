@@ -1,0 +1,22 @@
+<% flash.each do |type, message| %>
+  <% variant =
+    case type.to_s
+    when "notice" then "bb-alert-info"
+    when "success" then "bb-alert-success"
+    when "alert", "error" then "bb-alert-error"
+    else "bb-alert-neutral"
+    end
+  %>
+  <% # Errors stay a little longer than confirmations. %>
+  <% delay = %w[alert error].include?(type.to_s) ? 9000 : 5000 %>
+  <div class="bb-alert bb-alert--toast mt-3 pointer-events-auto <%= variant %>"
+       role="status"
+       data-controller="flash"
+       data-flash-delay-value="<%= delay %>">
+    <span class="flex-1"><%= message %></span>
+    <button type="button"
+            class="bb-alert__close"
+            aria-label="Dismiss"
+            data-action="flash#dismiss">×</button>
+  </div>
+<% end %>

@@ -1,0 +1,62 @@
+/* Styles that Tailwind does not cover. */
+
+/* vis-timeline in the theme's colors. */
+.vis-timeline {
+  border: none;
+  font-family: inherit;
+}
+
+.vis-panel.vis-top,
+.vis-panel.vis-bottom,
+.vis-panel.vis-left,
+.vis-panel.vis-right,
+.vis-panel.vis-center,
+.vis-panel.vis-background,
+.vis-time-axis .vis-grid.vis-major {
+  border-color: var(--color-neutral-200);
+}
+
+.vis-time-axis .vis-text {
+  color: var(--color-neutral-600);
+}
+
+.vis-time-axis .vis-grid.vis-minor {
+  border-color: var(--color-neutral-100);
+}
+
+.vis-item.item-event,
+.vis-item.item-current-day {
+  border-radius: 0.25rem;
+  color: var(--color-neutral-900);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.vis-item.item-event {
+  background-color: var(--color-neutral-100);
+  border-color: var(--color-neutral-400);
+}
+
+.vis-item.item-event:hover,
+.vis-item.item-current-day {
+  background-color: var(--color-neutral-200);
+  border-color: var(--color-brand-500);
+}
+
+.vis-item .vis-item-content {
+  padding: 2px 8px;
+}
+
+.vis-custom-time.currentDay {
+  background-color: var(--color-brand-500);
+  pointer-events: none;
+}
+
+div.vis-tooltip {
+  background-color: var(--color-surface);
+  border-color: var(--color-neutral-300);
+  border-radius: 0.375rem;
+  color: var(--color-neutral-900);
+  font-family: inherit;
+  font-size: 0.8125rem;
+}

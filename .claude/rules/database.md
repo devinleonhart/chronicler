@@ -1,32 +1,30 @@
 ---
 paths:
-  - "server/db/**"
-  - "server/api/**"
-  - "server/utils/**"
+  - "db/**"
+  - "app/models/**"
+  - "app/controllers/api/**"
 ---
 
-# Database Rules
+# Data Rules
 
 ## Dates
-- All dates are `varchar(10)` YYYY-MM-DD strings — never use JS Date, timestamps, or ISO 8601
-- Always validate dates against universe bounds using `validateUniverseDates()` before insert/update
-- Character lifespans (birthDate < deathDate) validated via `validateCharacterLifespans()`
+- YYYY-MM-DD strings, compared as strings. Arithmetic goes through `CalendarDate`, in the Gregorian calendar.
+- `calendar_date: true` refuses impossible dates; `universe_bounds: true` checks changed dates against the universe.
+- A death before birth and an end before its start are refused.
 
-## ORM
-- Use Drizzle ORM for all queries — schema in `server/db/schema.ts`, relations in `server/db/relations.ts`
-- Get the db instance from `server/utils/db.ts` (connection pool, environment-aware)
-- After schema changes: run `pnpm db:generate` to create migration SQL, then `pnpm db:migrate`
-
-## Junction tables
-- `characterGroup`: links Character ↔ Group (cascade delete on both FKs)
-- `eventCharacter`: links Event ↔ Character (cascade delete on both FKs)
-- Deleting a character auto-removes its group/event memberships; deleting a group does NOT delete characters
+## Memberships
+- Assigning `group_ids` or `character_ids` is staged by `StagedMembers`: checked, then written on save, in its transaction.
+- Join tables have composite primary keys. Deleting a character removes its memberships; deleting a group keeps its characters.
+- An event's members must be alive at some point during it. This is rechecked only when its dates or members change.
 
 ## Special records
-- `UniverseSettings` is a singleton (one row); `settings/index.get.ts` auto-initializes it if absent
-- The "Current Day" Event (`isCurrentDay = true`) is auto-created alongside settings — never delete it directly
+- `UniverseSetting.current!` creates the settings and the Current Day event if missing.
+- The Current Day event cannot be deleted, and moves with `current_day`.
 
-## Testing
-- Test DB: `chronicler_test` on port 5433; selected when `NODE_ENV=test` or `VITEST` is set
-- Global setup drops/recreates the schema; per-test setup clears all rows and resets sequences
-- Use helpers from `server/test/helpers.ts` to create fixtures (`createTestCharacter`, etc.)
+## Migrations
+- The first migration converts the Nuxt schema in place. `db:migrate VERSION=0` restores it.
+- `lib/tasks/legacy_database.rake` keeps `db:migrate` from loading `db/schema.rb` into an unconverted database.
+
+## API
+- Controllers read the raw JSON body through `body`; Rails does not parse it, so types are not coerced.
+- Check a change with `contract/replay.rb verify` against a database freshly loaded from `contract/seed.sql`.

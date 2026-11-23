@@ -1,0 +1,16 @@
+<%= render "shared/page", title: "Current Day", description: @day do %>
+  <% content_for(:page_actions) do %>
+    <%= view_link "All", current_day_path, current: !@by_group %>
+    <%= view_link "By Group", current_day_path(view: "group"), current: @by_group %>
+  <% end %>
+
+  <% if @by_group %>
+    <% @roster.by_group.each do |group, entries| %>
+      <%= render "entries", title: group.name, entries: %>
+    <% end %>
+    <%= render "entries", title: "Ungrouped", entries: @roster.ungrouped if @roster.ungrouped.any? %>
+  <% else %>
+    <%= render "entries", title: "Living (#{@roster.living.size})", entries: @roster.living if @roster.living.any? %>
+    <%= render "entries", title: "Deceased (#{@roster.deceased.size})", entries: @roster.deceased if @roster.deceased.any? %>
+  <% end %>
+<% end %>

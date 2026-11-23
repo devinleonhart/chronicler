@@ -1,0 +1,60 @@
+<%= render "shared/page", title: "Summary Generator", description: "Select characters to generate a chronological event summary" do %>
+  <div class="grid lg:grid-cols-[22rem_1fr] gap-6 items-start" data-controller="summary picker">
+    <%= form_with url: summary_path, method: :get, class: "bb-card p-4 space-y-4", data: { turbo_frame: "output" } do %>
+      <%= hidden_field_tag :ids, "", id: nil, autocomplete: "off", data: { summary_target: "ids" } %>
+      <div class="flex items-center gap-2">
+        <input type="search" placeholder="Search characters..." aria-label="Search characters" autocomplete="off" class="bb-input"
+               data-picker-target="query" data-summary-target="query"
+               data-action="input->picker#filter input->summary#update keydown.enter->picker#ignore:prevent">
+        <button type="button" class="bb-btn-sm bb-btn-ghost whitespace-nowrap hidden" data-summary-target="clear" data-action="summary#clear">Clear</button>
+      </div>
+
+      <% if @groups.any? %>
+        <div data-summary-target="groups">
+          <p class="bb-subheading-sm">Groups</p>
+          <div class="flex flex-wrap gap-2">
+            <% @groups.each do |group| %>
+              <button type="button" class="bb-chip" aria-pressed="false" data-summary-target="group"
+                      data-group="<%= group.id %>" data-action="summary#toggleGroup"><%= group.name %></button>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <fieldset>
+        <legend class="bb-subheading-sm">Characters</legend>
+        <div class="max-h-96 overflow-y-auto">
+          <% @characters.each do |character| %>
+            <label class="bb-picker__item" data-picker-target="item">
+              <%= check_box_tag nil, character.id, false, id: nil, autocomplete: "off",
+                                data: { summary_target: "character", action: "summary#update", groups: character.character_groups.map(&:group_id) } %>
+              <span><%= character.name %></span>
+            </label>
+          <% end %>
+          <p class="bb-empty-state__text text-sm p-2 hidden" data-picker-target="empty">No characters match.</p>
+        </div>
+      </fieldset>
+
+      <button class="bb-btn-sm bb-btn-primary bb-btn--full" disabled data-summary-target="generate">Generate Summary</button>
+    <% end %>
+
+    <%= turbo_frame_tag "output", data: { summary_target: "output" } do %>
+      <% if @text %>
+        <div data-controller="clipboard">
+          <div class="flex justify-end mb-3">
+            <button type="button" class="bb-btn-sm bb-btn-outline" data-clipboard-target="button" data-action="clipboard#copy">Copy</button>
+          </div>
+          <textarea readonly aria-label="Summary text" class="bb-input font-mono text-sm min-h-112" data-clipboard-target="text"><%= "\n#{@text}" %></textarea>
+        </div>
+      <% elsif @error %>
+        <div class="bb-alert bb-alert-error" role="alert"><%= @error %></div>
+      <% else %>
+        <div class="bb-card bb-empty-state-lg bb-empty-state__text">Select characters on the left and click Generate Summary.</div>
+      <% end %>
+    <% end %>
+
+    <template data-summary-target="placeholder">
+      <div class="bb-card bb-empty-state-lg bb-empty-state__text">Select characters on the left and click Generate Summary.</div>
+    </template>
+  </div>
+<% end %>

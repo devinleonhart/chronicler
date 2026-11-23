@@ -1,0 +1,12 @@
+en:
+  errors:
+    messages:
+      invalid_date: "must be a real date (YYYY-MM-DD)"
+      before_universe: "cannot be before the universe start date (%{limit})"
+      after_universe: "cannot be after the universe end date (%{limit})"
+      before_birth: "cannot be before the birth date"
+      before_start: "cannot be before the start date"
+      unknown: "not found: %{ids}"
+      unborn: "must have been born: %{name} was born %{date}, and the event ends %{limit}"
+      dead: "must be alive: %{name} died %{date}, and the event starts %{limit}"
+      current_day: "The Current Day event cannot be deleted"

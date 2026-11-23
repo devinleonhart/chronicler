@@ -1,0 +1,21 @@
+<%# locals: (group:, title:, submit:) -%>
+<%= turbo_frame_tag "dialog" do %>
+  <h2 class="bb-section-heading--sm"><%= title %></h2>
+  <%= form_with model: group do |form| %>
+    <div class="bb-field">
+      <%= form.label :name, class: "bb-label" %>
+      <%= form.text_field :name, required: true, maxlength: 255, autofocus: true, autocomplete: "off", placeholder: "Group name", class: "bb-input" %>
+      <%= field_errors(group, :name) %>
+    </div>
+
+    <div class="bb-field">
+      <%= form.label :description, "Description (optional)", class: "bb-label" %>
+      <%= form.text_area :description, rows: 2, placeholder: "Brief description...", class: "bb-input" %>
+    </div>
+
+    <div class="bb-dialog__footer">
+      <button type="button" class="bb-btn-sm bb-btn-outline" data-action="dialog#close">Cancel</button>
+      <%= form.submit submit, class: "bb-btn-sm bb-btn-primary" %>
+    </div>
+  <% end %>
+<% end %>

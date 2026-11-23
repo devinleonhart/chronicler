@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Chronicler" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%# A cached list would show other filters for a moment. %>
+    <meta name="turbo-cache-control" content="no-preview">
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    <%= yield(:head) %>
+  </head>
+
+  <body class="min-h-screen bg-neutral-50 text-neutral-900">
+    <%= render "shared/navbar" %>
+
+    <main class="min-h-[calc(100vh-4rem)]">
+      <%= yield %>
+    </main>
+
+    <div class="fixed inset-x-0 bottom-0 pb-4 pointer-events-none">
+      <div class="max-w-5xl mx-auto px-4">
+        <%= render "shared/flashbar" %>
+      </div>
+    </div>
+
+    <dialog class="bb-dialog" data-controller="dialog" data-action="turbo:frame-load->dialog#open close->dialog#clear click->dialog#closeOnBackdrop turbo:before-cache@document->dialog#close">
+      <%= turbo_frame_tag "dialog", data: { dialog_target: "frame" } %>
+    </dialog>
+
+    <dialog class="bb-dialog" id="confirm_dialog" aria-labelledby="confirm_title">
+      <form method="dialog">
+        <h2 id="confirm_title" class="bb-section-heading--sm"></h2>
+        <p class="bb-subtitle mb-6" data-confirm="message"></p>
+        <div class="bb-dialog__footer">
+          <button value="cancel" class="bb-btn-sm bb-btn-outline">Cancel</button>
+          <button value="confirm" class="bb-btn-sm bb-btn-danger" data-confirm="accept"></button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

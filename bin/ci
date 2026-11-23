@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+set -eu
+
+# Eager loads the application and enforces minimum coverage.
+export CI=true
+
+echo "==> rubocop"
+bundle exec rubocop
+
+echo "==> brakeman"
+bundle exec brakeman -qz
+
+echo "==> bundle-audit"
+bundle exec bundle-audit check --update
+
+echo "==> tailwindcss:build"
+bundle exec rails tailwindcss:build
+
+echo "==> db:prepare"
+bundle exec rails db:prepare
+
+echo "==> rspec"
+bundle exec rspec
+
+echo "OK"

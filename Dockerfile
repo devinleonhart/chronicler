@@ -3,7 +3,6 @@ FROM ruby:4.0.10-slim-trixie AS base
 ENV APP_PATH=/app \
     BUNDLE_VERSION=4.0.22 \
     BUNDLE_PATH=/usr/local/bundle/gems \
-    RAILS_LOG_TO_STDOUT=true \
     RAILS_PORT=3000
 
 WORKDIR $APP_PATH
@@ -45,6 +44,10 @@ ENV RAILS_ENV=development
 COPY Gemfile Gemfile.lock ./
 RUN bundle install --jobs 4 --retry 3
 
+# The specs run the MCP server, which has its own gems.
+COPY mcp/Gemfile mcp/Gemfile.lock ./mcp/
+RUN BUNDLE_GEMFILE=mcp/Gemfile bundle install --jobs 4 --retry 3
+
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:$RAILS_PORT/up || exit 1
 
@@ -77,7 +80,8 @@ ENV BUNDLE_WITHOUT=development:test \
     BUNDLE_DEPLOYMENT=1 \
     BUNDLE_FROZEN=1 \
     RAILS_ENV=production \
-    RAILS_SERVE_STATIC_FILES=true
+    BOOTSNAP_CACHE_DIR=/tmp/bootsnap \
+    MALLOC_ARENA_MAX=2
 
 RUN groupadd --gid 1000 rails && \
     useradd --uid 1000 --gid rails --create-home --shell /bin/bash rails

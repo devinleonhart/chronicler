@@ -15,3 +15,6 @@ node_modules/
 
 # OS
 .DS_Store
+
+# Legacy Nuxt test coverage
+legacy/server/coverage/

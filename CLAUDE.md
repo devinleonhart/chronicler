@@ -1,76 +1,63 @@
 # Chronicler
 
-A full-stack web app for managing fictional universe timelines — characters, groups, and events.
+A web app for managing fictional universe timelines: characters, groups and events.
 
 ## Tech Stack
 
-- **Frontend**: Nuxt 4 (SPA mode, `ssr: false`), Vue 3, Pinia, Radix Vue, vis-timeline
-- **Backend**: H3 (Nuxt server routes), Drizzle ORM
-- **Database**: PostgreSQL 18 — `chronicler_dev` (port 5432), `chronicler_test` (port 5433)
-- **Package manager**: pnpm
-- **Language**: TypeScript throughout
+- **Application**: Rails 8.1 on Ruby 4.0, with Hotwire (Turbo, Stimulus), importmap, propshaft and Tailwind
+- **Database**: PostgreSQL 18 (Debian image; name order depends on its locale)
+- **Specs**: RSpec, with Cuprite and Chromium for system specs
+- **MCP server**: plain Ruby over stdio, in `mcp/`
 
 ## Commands
 
+All Ruby runs in containers.
+
 ```bash
-pnpm dev                   # Start dev server
-pnpm test                  # Run backend tests (Vitest)
-pnpm test:server:coverage  # Run tests with coverage
-pnpm lint                  # ESLint check
-pnpm quality               # Full suite: test + lint + tsc
-pnpm db:migrate            # Run pending Drizzle migrations
-pnpm db:seed               # Seed sample "Knighthood" universe
-pnpm db:studio             # Open Drizzle Studio GUI
+docker compose up web                                    # http://localhost:3000
+docker compose run --rm -e RAILS_ENV=test web bin/ci     # everything CI checks; ends in OK
+docker compose run --rm -e RAILS_ENV=test web rspec spec/models
+docker compose run --rm web bin/rails db:migrate
+docker compose run --rm web bin/rails db:seed:replant    # empties development, loads the sample universe
+docker compose run --rm web bin/rails users:create       # the one user; users:password changes the password
+docker compose build web                                 # after changing a Gemfile
 ```
 
 ## Architecture
 
-### File layout
-
 ```
-app/             # Nuxt frontend (pages, components, stores, composables)
-server/api/      # H3 REST endpoints (file-based routing)
-server/db/       # Drizzle schema, migrations, seed, utilities
-server/utils/    # Shared server helpers
-server/test/     # Vitest integration tests
+app/controllers/        # Pages: ERB, Turbo, session sign-in
+app/controllers/api/    # JSON API for the MCP server and scripts: bearer key
+app/models/             # The rules, shared by both
+app/services/           # Ages, summary text, event list, current-day roster
+mcp/                    # MCP server, with its own Gemfile
+contract/               # Recorded behavior of the API, and a script to replay it
+db/legacy_schema.sql    # The schema before Rails, which the first migration converts
 ```
 
 ### Data model
 
-- **UniverseSettings** — single-row config (universe name, start/end dates, current day)
-- **Character** — name, birthDate, deathDate (nullable); YYYY-MM-DD strings
-- **Group** — collection of characters (many-to-many via `characterGroup` junction)
-- **Event** — name, startDate, endDate (nullable), `isCurrentDay` flag; many-to-many with characters
+- **UniverseSetting**: single row with the name, start and end dates, and current day
+- **Character**: name, birth date, optional death date
+- **Group**: characters, through `character_groups`
+- **Event**: name, start date, optional end date, `is_current_day`; characters, through `event_characters`
+- **User**, **Session**: one user, created by a command
 
-### Key architectural decisions
+### Key decisions
 
-- All dates stored as `varchar(10)` YYYY-MM-DD strings, never JS Date objects or timestamps
-- `isCurrentDay` flag on Event marks the "Current Day" reference event (auto-created with settings)
-- Nuxt SPA mode: root `/` redirects to `/events`; source dir is `app/`
-- Tests use a separate database on port 5433; `NODE_ENV=test` or `VITEST` env var selects it
-- Test suite runs serialized (`maxWorkers: 1`); global setup drops/recreates schema before run
-- Coverage threshold: 70% (statements, branches, functions, lines)
-
-## Code Conventions
-
-- Server API routes follow Nuxt file-based naming: `[id].get.ts`, `index.post.ts`, etc.
-- All server routes validate dates against universe bounds using `validateUniverseDates()`
-- Character age calculation lives in `app/lib/ageCalculator.ts` (used on both frontend and summarizer)
-- Pinia stores handle all HTTP calls via axios; components do not call the API directly
-- Use `parseId()` from `server/utils/parseId.ts` for route parameter IDs
-- Use `handleUnknownError()` from `server/utils/handleUnknownError.ts` for error responses
+- Dates are `varchar(10)` YYYY-MM-DD strings, never Ruby dates or timestamps. `CalendarDate` checks them.
+- Pages and API are separate controllers over the same models; neither calls the other.
+- Rules belong in the models, as typed errors. `Api::ErrorMessage` gives them the API's wording.
+- The API's paths, JSON, status codes and messages are fixed by `contract/`.
+- Migrations never run at boot.
 
 ## Environment Variables
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `DATABASE_URL` | `postgres://postgres:postgres@localhost:5432/chronicler_dev` | Dev DB connection |
-| `NODE_ENV` | — | Set to `test` to use port 5433 test DB |
-| `VITEST` | — | Auto-set by vitest; also triggers test DB selection |
-| `API_KEY` | — | When set, all `/api/*` routes require `Authorization: Bearer <key>`; unset = no auth (safe for local dev) |
-
-## See Also
-
-- Database schema: `server/db/schema.ts`
-- ORM relations: `server/db/relations.ts`
-- Test helpers: `server/test/helpers.ts`
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | Production database |
+| `API_KEY` | Bearer key for `/api`; production does not boot without it, development runs unchecked |
+| `SECRET_KEY_BASE` | Production secret |
+| `APP_HOST` | The host production answers to (default `chronicler.devleo.me`) |
+| `DEVELOPMENT_DATABASE_URL`, `TEST_DATABASE_URL` | Set by compose; not `DATABASE_URL`, which would apply to both |
+| `CHRONICLER_URL`, `CHRONICLER_API_KEY` | Read by the MCP server |

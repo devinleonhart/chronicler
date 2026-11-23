@@ -36,7 +36,6 @@ storage/*
 public/uploads
 
 # Node modules (if any)
-node_modules/
 
 # Environment files
 .env
@@ -69,7 +68,5 @@ vendor/bundle
 *.sqlite3
 db/*.sqlite3
 
-legacy/
 contract/
-.nuxt/
 .claude/

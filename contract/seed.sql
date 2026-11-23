@@ -1,4 +1,4 @@
--- Data only, in legacy table names. Made by running legacy/server/db/seed.ts on an empty database.
+-- Data only, in legacy table names. Made by the Nuxt application's seed script on an empty database.
 --
 -- PostgreSQL database dump
 --

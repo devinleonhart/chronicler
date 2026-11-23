@@ -1,0 +1,2 @@
+class UniverseSetting < ApplicationRecord
+end

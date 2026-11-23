@@ -1,31 +1,12 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  errors:
+    messages:
+      invalid_date: "must be a real date (YYYY-MM-DD)"
+      before_universe: "cannot be before the universe start date (%{limit})"
+      after_universe: "cannot be after the universe end date (%{limit})"
+      before_birth: "cannot be before the birth date"
+      before_start: "cannot be before the start date"
+      unknown: "not found: %{ids}"
+      unborn: "must have been born: %{name} was born %{date}, and the event ends %{limit}"
+      dead: "must be alive: %{name} died %{date}, and the event starts %{limit}"
+      current_day: "The Current Day event cannot be deleted"

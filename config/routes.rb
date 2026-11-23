@@ -1,14 +1,28 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  # Ids take any text, so that a malformed one gets the API's own error.
+  segment = %r{[^/]+}
+  scope "/api", module: "api", as: "api", format: false,
+                constraints: { id: segment, group_id: segment, character_id: segment } do
+    get "settings", to: "settings#show"
+    put "settings", to: "settings#update"
+    get "summary", to: "summaries#show"
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+    put "characters/bulk", to: "bulk_characters#update"
+    get "characters/placeholders", to: "characters#placeholders"
+    get "characters/:id/events", to: "characters#events"
+    post "characters/:id/groups", to: "character_groups#create"
+    delete "characters/:id/groups/:group_id", to: "character_groups#destroy"
+    post "events/:id/characters", to: "event_characters#create"
+    delete "events/:id/characters/:character_id", to: "event_characters#destroy"
+
+    %w[groups characters events].each do |name|
+      get name, to: "#{name}#index"
+      post name, to: "#{name}#create"
+      get "#{name}/:id", to: "#{name}#show"
+      put "#{name}/:id", to: "#{name}#update"
+      delete "#{name}/:id", to: "#{name}#destroy"
+    end
+  end
 end

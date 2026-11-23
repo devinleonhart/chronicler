@@ -1,1 +1,740 @@
 @import "tailwindcss";
+
+/* =====================================================================
+   COLOR SCHEME — single source of truth
+   ---------------------------------------------------------------------
+   Every color resolves to one of these five semantic ramps; repoint a
+   ramp below to re-theme the whole app. Each is also emitted as a :root
+   CSS variable, so the light-theme block can override it at runtime.
+   ===================================================================== */
+@theme {
+  /* Brand / accent — Tailwind "slate". Repoint to change every accent at once. */
+  --color-brand-50:  var(--color-slate-50);
+  --color-brand-100: var(--color-slate-100);
+  --color-brand-200: var(--color-slate-200);
+  --color-brand-300: var(--color-slate-300);
+  --color-brand-400: var(--color-slate-400);
+  --color-brand-500: var(--color-slate-500);
+  --color-brand-600: var(--color-slate-600);
+  --color-brand-700: var(--color-slate-700);
+  --color-brand-800: var(--color-slate-800);
+  --color-brand-900: var(--color-slate-900);
+  --color-brand-950: var(--color-slate-950);
+
+  /* Neutral — Tailwind "gray" inverted end-to-end, which is what makes the app
+     dark: the scale reads conventionally in markup but each step resolves to its
+     opposite lightness. The light-theme block restores the un-inverted mapping. */
+  --color-neutral-50:  var(--color-gray-950);
+  --color-neutral-100: var(--color-gray-900);
+  --color-neutral-200: var(--color-gray-800);
+  --color-neutral-300: var(--color-gray-700);
+  --color-neutral-400: var(--color-gray-600);
+  --color-neutral-500: var(--color-gray-500);
+  --color-neutral-600: var(--color-gray-400);
+  --color-neutral-700: var(--color-gray-300);
+  --color-neutral-800: var(--color-gray-200);
+  --color-neutral-900: var(--color-gray-100);
+  --color-neutral-950: var(--color-gray-50);
+
+  /* Success — currently Tailwind "green" */
+  --color-success-50:  var(--color-green-50);
+  --color-success-100: var(--color-green-100);
+  --color-success-200: var(--color-green-200);
+  --color-success-300: var(--color-green-300);
+  --color-success-400: var(--color-green-400);
+  --color-success-500: var(--color-green-500);
+  --color-success-600: var(--color-green-600);
+  --color-success-700: var(--color-green-700);
+  --color-success-800: var(--color-green-800);
+  --color-success-900: var(--color-green-900);
+  --color-success-950: var(--color-green-950);
+
+  /* Danger — currently Tailwind "red" */
+  --color-danger-50:  var(--color-red-50);
+  --color-danger-100: var(--color-red-100);
+  --color-danger-200: var(--color-red-200);
+  --color-danger-300: var(--color-red-300);
+  --color-danger-400: var(--color-red-400);
+  --color-danger-500: var(--color-red-500);
+  --color-danger-600: var(--color-red-600);
+  --color-danger-700: var(--color-red-700);
+  --color-danger-800: var(--color-red-800);
+  --color-danger-900: var(--color-red-900);
+  --color-danger-950: var(--color-red-950);
+
+  /* Warning — currently Tailwind "yellow" */
+  --color-warning-50:  var(--color-yellow-50);
+  --color-warning-100: var(--color-yellow-100);
+  --color-warning-200: var(--color-yellow-200);
+  --color-warning-300: var(--color-yellow-300);
+  --color-warning-400: var(--color-yellow-400);
+  --color-warning-500: var(--color-yellow-500);
+  --color-warning-600: var(--color-yellow-600);
+  --color-warning-700: var(--color-yellow-700);
+  --color-warning-800: var(--color-yellow-800);
+  --color-warning-900: var(--color-yellow-900);
+  --color-warning-950: var(--color-yellow-950);
+
+  /* Raised surface (cards, inputs, dropdowns) — not a neutral-ramp step. Use via bg-surface. */
+  --color-surface: var(--color-gray-900);
+
+  /* Navbar — dark in BOTH themes, so pinned to the constant gray ramp (no neutral flip). */
+  --color-nav:        var(--color-gray-900);
+  --color-nav-fg:     var(--color-gray-100);
+  --color-nav-muted:  var(--color-gray-400);
+  --color-nav-link:   var(--color-gray-300);
+  --color-nav-hover:  var(--color-gray-800);
+  --color-nav-border: var(--color-gray-800);
+}
+
+/* Restore the hand cursor on interactive controls (Tailwind v4 Preflight drops it);
+   disabled controls show not-allowed. In the base layer so utility classes still win. */
+@layer base {
+  /* `light dark` lets native UA chrome (form controls, scrollbars) follow the theme preference. */
+  :root {
+    color-scheme: light dark;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  label[for],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="range"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled,
+  input:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
+@layer components {
+  /* ============================================
+     LAYOUT
+     ============================================ */
+
+  /* Page wrappers */
+  .bb-page {
+    @apply py-8 min-h-screen bg-neutral-50;
+  }
+
+  .bb-page--transparent {
+    @apply py-8 min-h-screen;
+  }
+
+  /* Containers - standard widths with horizontal padding */
+  .bb-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .bb-container-lg {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .bb-container-md {
+    @apply max-w-4xl mx-auto px-4;
+  }
+
+  .bb-container-sm {
+    @apply max-w-lg mx-auto px-4;
+  }
+
+  .bb-container-xs {
+    @apply max-w-md mx-auto px-4;
+  }
+
+  /* Two-column sidebar layout */
+  .bb-layout-sidebar {
+    @apply flex flex-col lg:flex-row gap-8;
+  }
+
+  .bb-sidebar {
+    @apply w-full lg:w-1/4;
+  }
+
+  .bb-main {
+    @apply w-full lg:w-3/4;
+  }
+
+  .bb-main--wide {
+    @apply w-full lg:w-2/3;
+  }
+
+  .bb-sidebar--wide {
+    @apply w-full lg:w-1/3;
+  }
+
+  /* ============================================
+     SURFACES
+     ============================================ */
+
+  /* Cards */
+  .bb-card {
+    @apply bg-surface rounded-lg shadow-lg border border-neutral-200;
+  }
+
+  .bb-card--bordered {
+    @apply border border-neutral-300;
+  }
+
+  .bb-card--form {
+    @apply px-8 pt-6 pb-8;
+  }
+
+  .bb-card--panel {
+    @apply p-6;
+  }
+
+  .bb-card--panel-lg {
+    @apply p-8;
+  }
+
+  /* ============================================
+     TYPOGRAPHY
+     ============================================ */
+
+  /* Page headings */
+  .bb-heading-xl {
+    @apply text-3xl font-bold text-neutral-900 mb-2;
+  }
+
+  .bb-heading-lg {
+    @apply text-2xl font-bold text-neutral-900 mb-2;
+  }
+
+  /* Section headings within cards */
+  .bb-section-heading {
+    @apply text-xl font-semibold text-neutral-800 mb-6;
+  }
+
+  .bb-section-heading--sm {
+    @apply text-lg font-semibold text-neutral-800 mb-4;
+  }
+
+  .bb-section-heading--center {
+    @apply text-center;
+  }
+
+  /* Subheadings */
+  .bb-subheading {
+    @apply text-lg font-medium text-neutral-800 mb-4;
+  }
+
+  .bb-subheading-sm {
+    @apply text-sm font-medium text-neutral-700 mb-3;
+  }
+
+  /* Subtitle/muted text */
+  .bb-subtitle {
+    @apply text-neutral-600;
+  }
+
+  .bb-subtitle-sm {
+    @apply text-sm text-neutral-500;
+  }
+
+  /* Page header wrapper */
+  .bb-page-header {
+    @apply text-center mb-8;
+  }
+
+  /* ============================================
+     FORMS
+     ============================================ */
+
+  /* Labels */
+  .bb-label {
+    @apply block text-neutral-700 text-sm font-bold mb-2;
+  }
+
+  .bb-label-lg {
+    @apply block text-lg font-medium text-neutral-700 mb-2;
+  }
+
+  /* Inputs */
+  .bb-input {
+    @apply w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-brand-500 focus:border-brand-500;
+  }
+
+  .bb-input-lg {
+    @apply w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-lg;
+  }
+
+  /* Input with icon wrapper */
+  .bb-input-icon-wrapper {
+    @apply relative;
+  }
+
+  .bb-input-icon {
+    @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-400;
+  }
+
+  /* Form field spacing */
+  .bb-field {
+    @apply mb-4;
+  }
+
+  .bb-field-lg {
+    @apply mb-6;
+  }
+
+  /* Checkbox wrapper */
+  .bb-checkbox-label {
+    @apply flex items-center cursor-pointer;
+  }
+
+  .bb-checkbox-label input[type="checkbox"] {
+    @apply mr-2;
+  }
+
+  /* ============================================
+     LINKS
+     ============================================ */
+
+  .bb-link {
+    @apply text-brand-400 hover:text-brand-300 hover:underline;
+  }
+
+  .bb-link-strong {
+    @apply text-brand-300 hover:text-brand-200 hover:underline font-medium;
+  }
+
+  /* ============================================
+     BUTTONS
+     ============================================ */
+
+  /* Base button */
+  .bb-btn {
+    @apply font-bold py-3 px-6 rounded-lg focus:outline-none transition-colors duration-200;
+  }
+
+  .bb-btn-sm {
+    @apply font-bold py-2 px-4 rounded focus:outline-none transition-colors duration-200;
+  }
+
+  /* Button colors */
+  .bb-btn-primary {
+    @apply bg-brand-600 text-white hover:bg-brand-500;
+  }
+
+  .bb-btn-secondary {
+    @apply bg-neutral-300 text-neutral-900 hover:bg-neutral-400;
+  }
+
+  .bb-btn-success {
+    @apply bg-success-600 text-white hover:bg-success-500;
+  }
+
+  .bb-btn-danger {
+    @apply bg-danger-700 text-white hover:bg-danger-600;
+  }
+
+  .bb-btn-ghost {
+    @apply bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border border-neutral-200;
+  }
+
+  .bb-btn-outline {
+    @apply bg-transparent text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200 border border-neutral-300;
+  }
+
+  /* Button modifiers */
+  .bb-btn--full {
+    @apply w-full;
+  }
+
+  .bb-btn--flex {
+    @apply flex-1 text-center;
+  }
+
+  /* ============================================
+     NAVIGATION
+     ============================================ */
+
+  .bb-nav-link {
+    @apply text-nav-link hover:text-nav-fg px-3 py-2 rounded-md text-sm font-medium;
+  }
+
+  /* ============================================
+     PILLS & BADGES
+     ============================================ */
+
+  /* Pills - larger tag-like elements */
+  .bb-pill {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-sm font-medium;
+  }
+
+  .bb-pill-brand {
+    @apply bg-brand-900 text-brand-200;
+  }
+
+  .bb-pill-neutral {
+    @apply bg-neutral-100 text-neutral-800;
+  }
+
+  .bb-pill-success {
+    @apply bg-success-900 text-success-200;
+  }
+
+  /* Badges - small counters */
+  .bb-badge {
+    @apply text-xs rounded-full px-2 py-1 min-w-6 text-center;
+  }
+
+  .bb-badge-neutral {
+    @apply bg-neutral-100 text-neutral-700 border border-neutral-200;
+  }
+
+  .bb-badge-brand {
+    @apply bg-brand-900 text-brand-200;
+  }
+
+  /* ============================================
+     ALERTS
+     ============================================ */
+
+  .bb-alert {
+    @apply rounded-lg border px-4 py-3 shadow-sm;
+  }
+
+  /* Toast variant: a dismissible flash that fades out on its own. */
+  .bb-alert--toast {
+    @apply flex items-center gap-3 transition-opacity duration-500 ease-out;
+  }
+
+  .bb-alert--dismissing {
+    @apply opacity-0;
+  }
+
+  .bb-alert__close {
+    @apply shrink-0 text-xl leading-none opacity-60 hover:opacity-100 cursor-pointer
+           bg-transparent border-none p-0;
+  }
+
+  .bb-alert-info {
+    @apply border-brand-800 bg-brand-950 text-brand-100;
+  }
+
+  .bb-alert-success {
+    @apply border-success-800 bg-success-950 text-success-100;
+  }
+
+  .bb-alert-warning {
+    @apply border-warning-800 bg-warning-950 text-warning-100;
+  }
+
+  .bb-alert-error {
+    @apply border-danger-800 bg-danger-950 text-danger-100;
+  }
+
+  .bb-alert-neutral {
+    @apply border-neutral-200 bg-neutral-100 text-neutral-900;
+  }
+
+  /* ============================================
+     TABLES
+     ============================================ */
+
+  .bb-table {
+    @apply w-full text-left;
+  }
+
+  .bb-table th {
+    @apply px-4 py-3 text-sm font-semibold text-neutral-600 border-b border-neutral-200;
+  }
+
+  .bb-table td {
+    @apply px-4 py-3 align-top border-b border-neutral-100;
+  }
+
+  .bb-table tbody tr:hover {
+    @apply bg-neutral-50;
+  }
+
+  /* ============================================
+     DIALOGS
+     ============================================ */
+
+  .bb-dialog {
+    @apply m-auto w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 rounded-lg shadow-lg
+           bg-surface text-neutral-900 border border-neutral-200;
+  }
+
+  .bb-dialog::backdrop {
+    background-color: rgb(0 0 0 / 0.6);
+  }
+
+  .bb-dialog__footer {
+    @apply flex justify-end gap-3 mt-6;
+  }
+
+  /* Scrolling list of checkboxes. */
+  .bb-picker {
+    @apply max-h-56 overflow-y-auto p-2 rounded-md border border-neutral-300;
+  }
+
+  .bb-picker__item {
+    @apply flex items-center gap-2 px-2 py-1 rounded text-sm cursor-pointer hover:bg-neutral-100;
+  }
+
+  .bb-picker__item:has(input:checked) {
+    @apply bg-neutral-100 font-medium;
+  }
+
+  .bb-error {
+    @apply mt-1 text-sm text-danger-600;
+  }
+
+  .bb-hint {
+    @apply mt-1 text-sm text-neutral-500;
+  }
+
+  /* ============================================
+     LIST ITEMS
+     ============================================ */
+
+  /* Interactive list row */
+  .bb-list-item {
+    @apply flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors duration-200;
+  }
+
+  .bb-list-item--compact {
+    @apply flex items-center justify-between p-3 bg-neutral-50 rounded-lg;
+  }
+
+  .bb-list-item--bordered {
+    @apply p-3 border-b border-neutral-100 hover:bg-neutral-50;
+  }
+
+  /* ============================================
+     AVATARS & ICONS
+     ============================================ */
+
+  .bb-avatar {
+    @apply w-10 h-10 rounded-full flex items-center justify-center;
+  }
+
+  .bb-avatar-sm {
+    @apply w-8 h-8 rounded-full flex items-center justify-center;
+  }
+
+  .bb-avatar-lg {
+    @apply w-16 h-16 rounded-full flex items-center justify-center;
+  }
+
+  .bb-avatar-brand {
+    @apply bg-brand-900 text-brand-200;
+  }
+
+  .bb-avatar-neutral {
+    @apply bg-neutral-100 text-neutral-500;
+  }
+
+  /* ============================================
+     EMPTY STATES
+     ============================================ */
+
+  .bb-empty-state {
+    @apply text-center py-8;
+  }
+
+  .bb-empty-state-lg {
+    @apply text-center py-12;
+  }
+
+  .bb-empty-state__title {
+    @apply text-lg font-semibold text-neutral-600 mb-2;
+  }
+
+  .bb-empty-state__text {
+    @apply text-neutral-500;
+  }
+
+  /* ============================================
+     DIVIDERS
+     ============================================ */
+
+  .bb-divider {
+    @apply border-t border-neutral-200 my-6;
+  }
+
+  /* ============================================
+     GRIDS
+     ============================================ */
+
+  .bb-card-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  .bb-card-grid-2 {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-8;
+  }
+
+  /* ============================================
+     TOKEN INPUT (type-ahead multi-select)
+     ============================================ */
+
+  /* Bordered box that holds selected tokens inline with the text input. */
+  .bb-token-box {
+    @apply flex flex-wrap items-center gap-2 w-full min-h-11 rounded-md border border-neutral-300
+           bg-surface px-2 py-1.5 cursor-text
+           focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500;
+  }
+
+  .bb-token-input {
+    @apply flex-1 min-w-32 border-none bg-transparent text-sm py-1 focus:outline-none;
+  }
+
+  .bb-token {
+    @apply inline-flex items-center gap-1 rounded-full bg-brand-600 text-white text-sm pl-3 pr-2 py-1;
+  }
+
+  .bb-token__remove {
+    @apply cursor-pointer leading-none text-white bg-transparent border-none p-0 opacity-80 hover:opacity-100;
+  }
+
+  /* Suggestions dropdown rendered under the box while typing. */
+  .bb-token-suggestions {
+    @apply mt-1 max-h-60 overflow-y-auto rounded-md border border-neutral-200 bg-surface shadow-sm;
+  }
+
+  .bb-token-suggestion {
+    @apply block w-full text-left px-3 py-2 text-sm text-neutral-700 cursor-pointer bg-transparent border-none;
+  }
+
+  .bb-token-suggestion--active,
+  .bb-token-suggestion:hover {
+    @apply bg-brand-900 text-brand-100;
+  }
+
+  /* ============================================
+     UTILITIES
+     ============================================ */
+
+  .bb-no-scroll {
+    @apply overflow-hidden;
+  }
+
+  .bb-action-text {
+    @apply text-danger-600 hover:text-danger-800 transition-colors duration-200;
+  }
+
+  /* ============================================
+     FILTER CHIPS
+     ============================================ */
+
+  /* Filter chips: the checkbox is visually hidden; the label is the pill. */
+  .bb-chip {
+    @apply inline-flex items-center px-3 py-1 rounded-full border border-neutral-300 bg-neutral-100
+           text-sm text-neutral-700 cursor-pointer select-none transition-colors duration-150
+           hover:bg-neutral-200;
+  }
+
+  .bb-chip:has(.bb-chip__input:checked) {
+    @apply bg-brand-600 border-brand-600 text-white hover:bg-brand-700;
+  }
+
+  .bb-chip[aria-pressed="true"] {
+    @apply bg-brand-600 border-brand-600 text-white hover:bg-brand-700;
+  }
+
+  .bb-chip[aria-pressed="mixed"] {
+    @apply border-brand-500 text-brand-400;
+  }
+
+  .bb-chip:has(.bb-chip__input:focus-visible) {
+    @apply ring-2 ring-brand-400;
+  }
+
+  /* ============================================
+     FILTER BUTTONS
+     ============================================ */
+
+  .bb-filter-btn {
+    @apply flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium border border-neutral-200 text-neutral-700 hover:bg-neutral-50 transition-colors duration-200 cursor-pointer no-underline;
+  }
+
+  .bb-filter-btn--active {
+    @apply ring-2 ring-brand-500 ring-offset-1 ring-offset-neutral-100;
+  }
+
+  .bb-tag-btn {
+    @apply flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium bg-brand-900 text-brand-200 hover:bg-brand-800 transition-colors duration-200 cursor-pointer no-underline;
+  }
+}
+
+/* =====================================================================
+   LIGHT THEME
+   ---------------------------------------------------------------------
+   When the browser prefers light, re-point the swappable ramps (surface,
+   neutral, brand) and re-style the few components whose tints differ.
+   Everything else flips automatically via the ramp tokens; the navbar is
+   pinned to the constant `nav` tokens and stays dark in both themes.
+   ===================================================================== */
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Raised surface -> white */
+    --color-surface: #fff;
+
+    /* Neutral -> normal grey (un-invert the dark ramp) */
+    --color-neutral-50:  var(--color-gray-50);
+    --color-neutral-100: var(--color-gray-100);
+    --color-neutral-200: var(--color-gray-200);
+    --color-neutral-300: var(--color-gray-300);
+    --color-neutral-400: var(--color-gray-400);
+    --color-neutral-500: var(--color-gray-500);
+    --color-neutral-600: var(--color-gray-600);
+    --color-neutral-700: var(--color-gray-700);
+    --color-neutral-800: var(--color-gray-800);
+    --color-neutral-900: var(--color-gray-900);
+    --color-neutral-950: var(--color-gray-950);
+
+    /* Brand accent -> blue (the original), instead of the dark theme's slate */
+    --color-brand-50:  var(--color-blue-50);
+    --color-brand-100: var(--color-blue-100);
+    --color-brand-200: var(--color-blue-200);
+    --color-brand-300: var(--color-blue-300);
+    --color-brand-400: var(--color-blue-400);
+    --color-brand-500: var(--color-blue-500);
+    --color-brand-600: var(--color-blue-600);
+    --color-brand-700: var(--color-blue-700);
+    --color-brand-800: var(--color-blue-800);
+    --color-brand-900: var(--color-blue-900);
+    --color-brand-950: var(--color-blue-950);
+  }
+
+  @layer components {
+    /* Buttons: original solid fills that darken on hover */
+    .bb-btn-primary   { @apply bg-brand-500 text-white hover:bg-brand-700; }
+    .bb-btn-secondary { @apply bg-neutral-500 text-white hover:bg-neutral-700; }
+    .bb-btn-success   { @apply bg-success-500 text-white hover:bg-success-700; }
+    .bb-btn-danger    { @apply bg-danger-500 text-white hover:bg-danger-700; }
+
+    /* Links: darker blue that darkens further on hover */
+    .bb-link        { @apply text-brand-600 hover:text-brand-800; }
+    .bb-link-strong { @apply text-brand-700 hover:text-brand-900; }
+
+    /* Soft-tinted chips/badges/avatars: light fill + dark text */
+    .bb-pill-brand    { @apply bg-brand-100 text-brand-800; }
+    .bb-pill-success  { @apply bg-success-100 text-success-800; }
+    .bb-badge-brand   { @apply bg-brand-200 text-brand-700; }
+    .bb-avatar-brand  { @apply bg-brand-100 text-brand-600; }
+    .bb-tag-btn       { @apply bg-brand-100 text-brand-800 hover:bg-brand-200; }
+
+    .bb-token-suggestion--active,
+    .bb-token-suggestion:hover { @apply bg-brand-50 text-brand-800; }
+
+    /* Alerts: light tinted panels with dark text */
+    .bb-alert-info    { @apply border-brand-200 bg-brand-50 text-brand-900; }
+    .bb-alert-success { @apply border-success-200 bg-success-50 text-success-900; }
+    .bb-alert-warning { @apply border-warning-200 bg-warning-50 text-warning-900; }
+    .bb-alert-error   { @apply border-danger-200 bg-danger-50 text-danger-900; }
+  }
+}

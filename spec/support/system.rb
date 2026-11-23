@@ -1,5 +1,7 @@
 require "capybara/cuprite"
 
+Capybara.enable_aria_label = true
+
 RSpec.configure do |config|
   config.before(:each, type: :system) do
     # The container runs as root with a small /dev/shm, neither of which Chromium's defaults allow.

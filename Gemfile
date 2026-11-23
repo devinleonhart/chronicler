@@ -4,6 +4,7 @@ ruby "4.0.10"
 
 gem "rails", "~> 8.1.4"
 
+gem "bcrypt"
 gem "bootsnap", require: false
 gem "importmap-rails"
 gem "pg"

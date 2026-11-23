@@ -1,0 +1,7 @@
+<%# locals: (mobile:) -%>
+<% nav_links.each do |label, path| %>
+  <% current = current_page?(path) %>
+  <%= link_to label, path,
+              class: class_names("bb-nav-link", "block" => mobile, "bg-nav-hover text-nav-fg" => current),
+              aria: { current: ("page" if current) } %>
+<% end %>

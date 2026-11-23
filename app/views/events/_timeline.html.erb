@@ -1,0 +1,6 @@
+<%= tag.div class: "bb-card min-h-50",
+            data: { controller: "timeline",
+                    timeline_items_value: timeline_items(@listing.events),
+                    timeline_start_value: @universe.start_date,
+                    timeline_end_value: @universe.end_date,
+                    timeline_current_value: @universe.current_day } %>

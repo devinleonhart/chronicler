@@ -5,6 +5,9 @@ class UniverseSetting < ApplicationRecord
 
   validates :start_date, :end_date, :current_day, presence: true, calendar_date: true
 
+  # The API has always accepted any day.
+  validate :current_day_within_universe, on: :form
+
   after_update :move_current_day_event, if: :saved_change_to_current_day?
 
   def self.current
@@ -23,6 +26,13 @@ class UniverseSetting < ApplicationRecord
   end
 
   private
+
+  def current_day_within_universe
+    return unless [start_date, end_date, current_day].all? { |date| CalendarDate.valid?(date) }
+
+    errors.add(:current_day, :before_universe, limit: start_date) if current_day < start_date
+    errors.add(:current_day, :after_universe, limit: end_date) if current_day > end_date
+  end
 
   # The event follows the setting even if the universe's bounds or its members would refuse the day.
   def move_current_day_event

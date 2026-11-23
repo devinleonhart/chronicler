@@ -17,6 +17,16 @@ class Event < ApplicationRecord
 
   scope :chronological, -> { order(:start_date, :id) }
   scope :name_contains, ->(text) { where("events.name ILIKE ?", "%#{text}%") }
+  scope :matching, lambda { |text|
+    present = EventCharacter.where(character: Character.name_matching(text))
+    name_contains(sanitize_sql_like(text)).or(where(id: present.select(:event_id)))
+  }
+  # The Current Day stays in view whichever groups are chosen.
+  scope :involving_groups, lambda { |ids|
+    next if ids.empty?
+
+    with_character(Character.in_group(ids)).or(where(is_current_day: true))
+  }
   scope :starting_from, ->(date) { where(start_date: date..) }
   scope :starting_until, ->(date) { where(start_date: ..date) }
   scope :with_character, ->(id) { where(id: EventCharacter.where(character_id: id).select(:event_id)) }

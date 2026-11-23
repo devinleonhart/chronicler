@@ -16,6 +16,11 @@ class Character < ApplicationRecord
 
   scope :by_name, -> { order(:name, :id) }
   scope :name_contains, ->(text) { where("characters.name ILIKE ?", "%#{text}%") }
+  scope :name_matching, ->(text) { name_contains(sanitize_sql_like(text)) }
+  scope :matching, lambda { |text|
+    groups = Group.where("groups.name ILIKE ?", "%#{sanitize_sql_like(text)}%")
+    name_matching(text).or(where(id: CharacterGroup.where(group: groups).select(:character_id)))
+  }
   scope :born_in, ->(year) { where("birth_date LIKE ?", "#{year}-%") }
   scope :in_group, ->(id) { where(id: CharacterGroup.where(group_id: id).select(:character_id)) }
 

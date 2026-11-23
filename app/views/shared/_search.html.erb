@@ -1,0 +1,5 @@
+<%# locals: (path:, label:, query:) -%>
+<%= form_with url: path, method: :get, class: "flex-1",
+              data: { controller: "search", action: "input->search#submit", turbo_frame: "results", turbo_action: "replace" } do |form| %>
+  <%= form.search_field :q, value: query, placeholder: "#{label}...", aria: { label: }, autocomplete: "off", class: "bb-input" %>
+<% end %>

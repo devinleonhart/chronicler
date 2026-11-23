@@ -1,6 +1,17 @@
 Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
+  root to: redirect("/events", status: 302)
+
+  resource :session, only: [:new, :create, :destroy]
+
+  resources :events, except: :show
+  resource :current_day, only: :show, path: "current-day"
+  resources :characters, except: :show
+  resources :groups, except: :show
+  resource :summary, only: :show
+  resource :settings, only: [:show, :update]
+
   # Ids take any text, so that a malformed one gets the API's own error.
   segment = %r{[^/]+}
   scope "/api", module: "api", as: "api", format: false,

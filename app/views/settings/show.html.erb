@@ -1,0 +1,34 @@
+<%= render "shared/page", title: "Settings", description: "Configure your fictional universe" do %>
+  <div class="max-w-2xl mx-auto bb-card bb-card--form">
+    <h2 class="bb-section-heading">Universe Settings</h2>
+    <%= form_with model: @setting, url: settings_path, method: :patch do |form| %>
+      <div class="bb-field">
+        <%= form.label :name, "Universe Name", class: "bb-label" %>
+        <%= form.text_field :name, required: true, maxlength: 255, placeholder: "My Universe", class: "bb-input" %>
+        <%= field_errors(@setting, :name) %>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="bb-field">
+          <%= form.label :start_date, "Universe Start Date", class: "bb-label" %>
+          <%= date_field_for(form, :start_date, required: true) %>
+          <%= field_errors(@setting, :start_date) %>
+        </div>
+        <div class="bb-field">
+          <%= form.label :end_date, "Universe End Date", class: "bb-label" %>
+          <%= date_field_for(form, :end_date, required: true) %>
+          <%= field_errors(@setting, :end_date) %>
+        </div>
+      </div>
+
+      <div class="bb-field-lg">
+        <%= form.label :current_day, "Current Day", class: "bb-label" %>
+        <%= date_field_for(form, :current_day, required: true) %>
+        <%= field_errors(@setting, :current_day) %>
+        <p class="bb-hint">This date drives the "Current Day" event and shows current character ages.</p>
+      </div>
+
+      <%= form.submit "Save Settings", class: "bb-btn bb-btn-primary" %>
+    <% end %>
+  </div>
+<% end %>

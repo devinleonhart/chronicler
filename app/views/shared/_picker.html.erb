@@ -1,0 +1,18 @@
+<%# locals: (name:, records:, selected:, legend:, search: nil) -%>
+<fieldset class="bb-field" <% if search %>data-controller="picker"<% end %>>
+  <legend class="bb-label"><%= legend %></legend>
+  <% if search %>
+    <input type="search" placeholder="<%= search %>..." aria-label="<%= search %>" autocomplete="off" class="bb-input mb-2"
+           data-picker-target="query" data-action="input->picker#filter keydown.enter->picker#ignore:prevent">
+  <% end %>
+  <%= hidden_field_tag name, "", id: nil, autocomplete: "off" %>
+  <div class="bb-picker">
+    <% records.each do |record| %>
+      <label class="bb-picker__item" data-picker-target="item">
+        <%= check_box_tag name, record.id, selected.include?(record.id), id: nil %>
+        <span><%= record.name %></span>
+      </label>
+    <% end %>
+    <p class="bb-empty-state__text text-sm p-2 hidden" data-picker-target="empty">No characters match.</p>
+  </div>
+</fieldset>

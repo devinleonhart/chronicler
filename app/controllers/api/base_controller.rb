@@ -1,5 +1,10 @@
 module Api
   class BaseController < ActionController::API
+    include ActionController::ContentSecurityPolicy
+
+    # The policy is for pages, and its nonce would start a session.
+    content_security_policy false
+
     DATE_ERRORS = %i[invalid_date before_universe after_universe].freeze
 
     # A date as sent, with the message for one that is malformed or impossible.

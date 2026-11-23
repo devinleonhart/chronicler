@@ -1,0 +1,37 @@
+<nav class="bg-nav text-nav-fg border-b border-nav-border" aria-label="Main navigation" data-controller="navbar">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <%= link_to "Chronicler", root_path, class: "text-xl font-bold text-nav-fg hover:text-nav-muted px-3 py-2" %>
+
+      <% if authenticated? %>
+        <button type="button"
+                class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-nav-link hover:text-nav-fg hover:bg-nav-hover focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                aria-controls="navbar_mobile"
+                aria-expanded="false"
+                data-navbar-target="button"
+                data-action="navbar#toggle">
+          <span class="sr-only">Open main menu</span>
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
+        <div class="hidden md:flex items-center space-x-4">
+          <div id="navbar_desktop" class="flex space-x-4">
+            <%= render "shared/nav_links", mobile: false %>
+          </div>
+          <%= button_to "Sign Out", session_path, method: :delete, class: "bb-nav-link cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <% if authenticated? %>
+    <div id="navbar_mobile" class="md:hidden hidden border-t border-nav-border" data-navbar-target="menu">
+      <div class="px-2 pt-2 pb-3 space-y-1">
+        <%= render "shared/nav_links", mobile: true %>
+        <%= button_to "Sign Out", session_path, method: :delete, class: "bb-nav-link block cursor-pointer" %>
+      </div>
+    </div>
+  <% end %>
+</nav>

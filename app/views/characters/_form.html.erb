@@ -1,0 +1,36 @@
+<%# locals: (character:, title:, submit:) -%>
+<%= turbo_frame_tag "dialog" do %>
+  <h2 class="bb-section-heading--sm"><%= title %></h2>
+  <%= form_with model: character do |form| %>
+    <div class="bb-field">
+      <%= form.label :name, class: "bb-label" %>
+      <%= form.text_field :name, required: true, maxlength: 255, autofocus: true, autocomplete: "off", placeholder: "Character name", class: "bb-input" %>
+      <%= field_errors(character, :name) %>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div class="bb-field">
+        <%= form.label :birth_date, "Birth Date", class: "bb-label" %>
+        <%= date_field_for(form, :birth_date, required: true) %>
+        <%= field_errors(character, :birth_date) %>
+      </div>
+      <div class="bb-field">
+        <%= form.label :death_date, "Death Date (optional)", class: "bb-label" %>
+        <%= date_field_for(form, :death_date) %>
+        <%= field_errors(character, :death_date) %>
+      </div>
+    </div>
+    <%= universe_hint %>
+
+    <% groups = Group.by_name.to_a %>
+    <% if groups.any? %>
+      <%= render "shared/picker", name: "character[group_ids][]", records: groups, selected: character.group_ids, legend: "Groups" %>
+    <% end %>
+    <%= field_errors(character, :groups) %>
+
+    <div class="bb-dialog__footer">
+      <button type="button" class="bb-btn-sm bb-btn-outline" data-action="dialog#close">Cancel</button>
+      <%= form.submit submit, class: "bb-btn-sm bb-btn-primary" %>
+    </div>
+  <% end %>
+<% end %>

@@ -1,0 +1,11 @@
+inherit_from: ../.rubocop.yml
+
+# replay.rb is a plain Ruby script, so ActiveSupport helpers are not available.
+Rails:
+  Enabled: false
+
+Metrics:
+  Enabled: false
+
+Naming/PredicateMethod:
+  Enabled: false

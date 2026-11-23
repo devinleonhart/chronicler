@@ -1,0 +1,148 @@
+plugins:
+  - rubocop-rails
+  - rubocop-rake
+  - rubocop-rspec
+  - rubocop-factory_bot
+  - rubocop-rspec_rails
+
+AllCops:
+  TargetRubyVersion: 4.0
+  NewCops: enable
+  Exclude:
+    - "bin/**/*"
+    - "config/**/*"
+    - "config.ru"
+    - "db/schema.rb"
+    - "legacy/**/*"
+    - "node_modules/**/*"
+    - "vendor/**/*"
+    - "tmp/**/*"
+
+# ─────────────────────────────────────────────────────────────
+# Layout
+# ─────────────────────────────────────────────────────────────
+
+Layout/LineLength:
+  Max: 120
+
+# ─────────────────────────────────────────────────────────────
+# Metrics - disable overly strict length/complexity cops
+# ─────────────────────────────────────────────────────────────
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - "spec/**/*"
+    - "db/migrate/*"
+    - "db/seeds.rb"
+    - "lib/tasks/**/*"
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - "db/seeds.rb"
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - "db/seeds.rb"
+
+# ─────────────────────────────────────────────────────────────
+# Lint
+# ─────────────────────────────────────────────────────────────
+
+Lint/DuplicateBranch:
+  Exclude:
+    - "db/seeds.rb"
+
+# ─────────────────────────────────────────────────────────────
+# Naming
+# ─────────────────────────────────────────────────────────────
+
+Naming/RescuedExceptionsVariableName:
+  PreferredName: error
+
+# ─────────────────────────────────────────────────────────────
+# Style
+# ─────────────────────────────────────────────────────────────
+
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/GuardClause:
+  Enabled: false
+
+Style/SymbolArray:
+  Enabled: false
+
+Style/WordArray:
+  Enabled: false
+
+# ─────────────────────────────────────────────────────────────
+# Rails
+# ─────────────────────────────────────────────────────────────
+
+Rails/I18nLocaleTexts:
+  Enabled: false
+
+Rails/ReversibleMigration:
+  Exclude:
+    - "db/migrate/*"
+
+Rails/Exit:
+  Exclude:
+    - "spec/rails_helper.rb"
+    - "spec/spec_helper.rb"
+
+Rails/Output:
+  Exclude:
+    - "spec/rails_helper.rb"
+
+# ─────────────────────────────────────────────────────────────
+# RSpec
+# ─────────────────────────────────────────────────────────────
+
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Max: 5
+
+RSpec/VerifiedDoubles:
+  Enabled: false
+
+RSpec/Output:
+  Exclude:
+    - "spec/rails_helper.rb"
+
+# ─────────────────────────────────────────────────────────────
+# RSpecRails
+# ─────────────────────────────────────────────────────────────
+
+RSpecRails/InferredSpecType:
+  Enabled: false
+
+# ─────────────────────────────────────────────────────────────
+# FactoryBot
+# ─────────────────────────────────────────────────────────────
+
+FactoryBot/AssociationStyle:
+  Enabled: false
+
+FactoryBot/ExcessiveCreateList:
+  Enabled: false

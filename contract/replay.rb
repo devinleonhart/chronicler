@@ -60,7 +60,7 @@ module Contract
 
   def normalize(value)
     case value
-    when Hash then value.to_h { |key, item| [ key, normalize_field(key, item) ] }
+    when Hash then value.to_h { |key, item| [key, normalize_field(key, item)] }
     when Array then sort_tied_events(value.map { |item| normalize(item) })
     else value
     end
@@ -80,7 +80,9 @@ module Contract
 
   # Only runs of equal startDate are reordered, so a wrong date order still shows.
   def sort_tied_events(list)
-    return list unless list.any? && list.all? { |item| item.is_a?(Hash) && item.key?("startDate") && item.key?("isCurrentDay") }
+    return list unless list.any? && list.all? do |item|
+      item.is_a?(Hash) && item.key?("startDate") && item.key?("isCurrentDay")
+    end
 
     list.chunk_while { |a, b| a["startDate"] == b["startDate"] }.flat_map { |run| run.sort_by { |event| event["id"] } }
   end
@@ -113,8 +115,8 @@ module Contract
   def differences(expected, actual, at = "")
     if expected.is_a?(Hash) && actual.is_a?(Hash)
       (expected.keys | actual.keys).flat_map do |key|
-        next [ "#{at}.#{key}: missing" ] unless actual.key?(key)
-        next [ "#{at}.#{key}: unexpected" ] unless expected.key?(key)
+        next ["#{at}.#{key}: missing"] unless actual.key?(key)
+        next ["#{at}.#{key}: unexpected"] unless expected.key?(key)
 
         differences(expected[key], actual[key], "#{at}.#{key}")
       end
@@ -123,17 +125,18 @@ module Contract
     elsif expected.eql?(actual)
       []
     else
-      [ "#{at}: expected #{expected.inspect}, got #{actual.inspect}" ]
+      ["#{at}: expected #{expected.inspect}, got #{actual.inspect}"]
     end
   end
 
   def load_sections(only)
     sections = JSON.parse(File.read(REQUESTS)).fetch("sections")
     names = sections.map { |section| section["name"] }
-    duplicates = sections.flat_map { |s| s["requests"].map { |r| "#{s["name"]}: #{r["name"]}" } }.tally.select { |_, n| n > 1 }
-    abort "Duplicate requests: #{duplicates.keys.join("; ")}" if duplicates.any?
+    labels = sections.flat_map { |s| s["requests"].map { |r| "#{s['name']}: #{r['name']}" } }
+    duplicates = labels.tally.select { |_, n| n > 1 }
+    abort "Duplicate requests: #{duplicates.keys.join('; ')}" if duplicates.any?
     unknown = only.to_a - names
-    abort "Unknown sections: #{unknown.join(", ")}. Known: #{names.join(", ")}" if unknown.any?
+    abort "Unknown sections: #{unknown.join(', ')}. Known: #{names.join(', ')}" if unknown.any?
 
     chosen = only ? sections.select { |s| only.include?(s["name"]) } : sections.reject { |s| s["database"] == "empty" }
     abort "No sections selected" if chosen.empty?
@@ -145,7 +148,7 @@ module Contract
 
   def run(sections, base, headers)
     sections.to_h do |section|
-      [ section["name"], section["requests"].to_h { |request| [ request["name"], perform(base, request, headers) ] } ]
+      [section["name"], section["requests"].to_h { |request| [request["name"], perform(base, request, headers)] }]
     end
   end
 
@@ -155,7 +158,7 @@ module Contract
     order = JSON.parse(File.read(REQUESTS)).fetch("sections").map { |s| s["name"] }
     golden = golden.slice(*order)
     File.write(GOLDEN, "#{JSON.pretty_generate(golden)}\n")
-    puts "#{golden.slice(*sections.map { |s| s["name"] }).sum { |_, r| r.size }} responses recorded"
+    puts "#{golden.slice(*sections.map { |s| s['name'] }).sum { |_, r| r.size }} responses recorded"
     true
   end
 
@@ -169,14 +172,14 @@ module Contract
       names = actual[section["name"]].keys | expected.keys
       names.each do |name|
         count += 1
-        found = if !expected.key?(name) then [ ": not recorded in golden.json" ]
-        elsif !actual[section["name"]].key?(name) then [ ": recorded but absent from requests.json" ]
-        else differences(expected[name], actual[section["name"]][name])
-        end
+        found = if !expected.key?(name) then [": not recorded in golden.json"]
+                elsif !actual[section["name"]].key?(name) then [": recorded but absent from requests.json"]
+                else differences(expected[name], actual[section["name"]][name])
+                end
         next if found.empty?
 
         differing += 1
-        puts "#{section["name"]}: #{name}"
+        puts "#{section['name']}: #{name}"
         found.first(10).each { |line| puts "  #{line}" }
         puts "  ... #{found.size - 10} more" if found.size > 10
       end
@@ -189,12 +192,12 @@ module Contract
     sections = JSON.parse(File.read(REQUESTS)).fetch("sections")
     # Literal routes such as /characters/bulk take precedence over /characters/:id.
     patterns = ROUTES.sort_by { |route| route.count(":") }.to_h do |route|
-      [ route, /\A#{route.gsub(/:\w+/, "[^/]+")}\z/ ]
+      [route, /\A#{route.gsub(/:\w+/, '[^/]+')}\z/]
     end
     requests = sections.flat_map { |section| section["requests"] }
-    hits = requests.map { |r| "#{r["method"]} #{r["path"].split("?").first}" }
+    hits = requests.map { |r| "#{r['method']} #{r['path'].split('?').first}" }
                    .map { |line| patterns.find { |_, pattern| pattern.match?(line) }&.first }.tally
-    ROUTES.each { |route| puts format("%4d  %s", hits.fetch(route, 0), route) }
+    ROUTES.each { |route| puts "#{hits.fetch(route, 0).to_s.rjust(4)}  #{route}" }
     covered = ROUTES.count { |route| hits.key?(route) }
     puts "#{covered} of #{ROUTES.size} patterns covered"
     covered == ROUTES.size

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_23_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_23_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -54,6 +54,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_000002) do
     t.text "description"
   end
 
+  create_table "mcp_tokens", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "machine", null: false
+    t.string "digest", null: false
+    t.string "scopes", default: [], null: false, array: true
+    t.datetime "expires_at", null: false
+    t.datetime "revoked_at"
+    t.datetime "last_used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["digest"], name: "index_mcp_tokens_on_digest", unique: true
+    t.index ["user_id"], name: "index_mcp_tokens_on_user_id"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "ip_address"
@@ -87,5 +101,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_000002) do
   add_foreign_key "character_groups", "groups", name: "character_groups_group_id_fkey", on_update: :cascade, on_delete: :cascade
   add_foreign_key "event_characters", "characters", name: "event_characters_character_id_fkey", on_update: :cascade, on_delete: :cascade
   add_foreign_key "event_characters", "events", name: "event_characters_event_id_fkey", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "mcp_tokens", "users"
   add_foreign_key "sessions", "users"
 end

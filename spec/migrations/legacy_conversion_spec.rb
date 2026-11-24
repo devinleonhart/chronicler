@@ -62,6 +62,16 @@ RSpec.describe "LegacyConversion" do
     expect(database.dump).to eq(before)
   end
 
+  it "reverses every migration without loss" do
+    load_legacy
+    before = database.dump
+    database.prepare
+    expect(database.dump).to include("CREATE TABLE public.mcp_tokens")
+    database.migrate_to("0")
+
+    expect(database.dump).to eq(before)
+  end
+
   it "reaches the same schema from an empty database" do
     load_legacy
     database.migrate_to(version)

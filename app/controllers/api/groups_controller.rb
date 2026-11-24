@@ -1,49 +1,30 @@
 module Api
   class GroupsController < BaseController
     def index
-      render_json(groups.by_name.map { |group| JsonRecord.group(group) })
+      render_json GroupOperations.list
     end
 
     def show
-      render_group path_id(:id, "group")
+      render_json GroupOperations.show(id)
     end
 
     def create
-      check_name(body["name"], "Group name is required")
-      check_description
-      group = Group.new(body.slice("name", "description"))
-      save(group)
-      render_group group.id, :created
+      render_json GroupOperations.create(body), :created
     end
 
     def update
-      id = path_id(:id, "group")
-      check_name(body["name"], "Group name is required") if body.key?("name")
-      check_description
-      group = find(Group, id)
-      group.assign_attributes(body.slice("name", "description"))
-      save(group)
-      render_group id
+      render_json GroupOperations.update(id, body)
     end
 
     def destroy
-      find(Group, path_id(:id, "group")).destroy!
+      GroupOperations.delete(id)
       head :no_content
     end
 
     private
 
-    def groups
-      Group.includes(character_groups: :character)
-    end
-
-    def render_group(id, status = :ok)
-      render_json JsonRecord.group(find(groups, id)), status
-    end
-
-    def check_description
-      description = body["description"]
-      reject("Description must be a string or null") unless description.nil? || description.is_a?(String)
+    def id
+      path_id(:id, "group")
     end
   end
 end

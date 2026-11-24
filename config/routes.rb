@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
+  match "mcp", to: "mcp#handle", via: :all, format: false
+
   root to: redirect("/events", status: 302)
 
   resource :session, only: [:new, :create, :destroy]
@@ -20,7 +22,7 @@ Rails.application.routes.draw do
     put "settings", to: "settings#update"
     get "summary", to: "summaries#show"
 
-    put "characters/bulk", to: "bulk_characters#update"
+    put "characters/bulk", to: "characters#bulk"
     get "characters/placeholders", to: "characters#placeholders"
     get "characters/:id/events", to: "characters#events"
     post "characters/:id/groups", to: "character_groups#create"

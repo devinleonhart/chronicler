@@ -1,20 +1,11 @@
 module Api
-  class EventCharactersController < EventsController
+  class EventCharactersController < BaseController
     def create
-      id = path_id(:id, "event")
-      character_id = body["characterId"]
-      reject("characterId must be a positive integer") unless positive_integer?(character_id)
-
-      event = find(Event, id)
-      reject(ErrorMessage.for(event.errors.first)) unless event.add_character(character_id.to_i)
-      render_event id
+      render_json EventOperations.add_character(path_id(:id, "event"), body)
     end
 
     def destroy
-      id = path_id(:id, "event")
-      character_id = path_id(:character_id, "character")
-      find(Event, id).event_characters.where(character_id:).delete_all
-      render_event id
+      render_json EventOperations.remove_character(path_id(:id, "event"), path_id(:character_id, "character"))
     end
   end
 end

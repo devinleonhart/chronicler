@@ -13,9 +13,9 @@ RSpec.describe "MCP security" do
   describe "authentication" do
     it "refuses anything but a live token, with one answer" do
       expired = issue_token
-      McpToken.authenticate(expired).update!(expires_at: 1.second.ago)
+      TailnetMcp::Token.authenticate(expired).update!(expires_at: 1.second.ago)
       revoked = issue_token
-      McpToken.authenticate(revoked).revoke!
+      TailnetMcp::Token.authenticate(revoked).revoke!
       headers = [nil, "", "Bearer", "Bearer ", "Bearer wrong", "Bearer #{expired}", "Bearer #{revoked}", reader,
                  "Basic #{reader}", "Token #{reader}", "Bearer  #{reader}", "Bearer #{reader} x", "Bearer \xFF"]
 
@@ -88,7 +88,7 @@ RSpec.describe "MCP security" do
 
     it "does not exist without a configured host" do
       [nil, ""].each do |host|
-        allow(Rails.configuration.x).to receive(:mcp_host).and_return(host)
+        allow(TailnetMcp.configuration).to receive(:host).and_return(host)
 
         expect(status(token: reader)).to eq(404)
         expect(status(host: "", token: reader)).to eq(404)
@@ -182,7 +182,7 @@ RSpec.describe "MCP security" do
     end
 
     it "has one line for a call, with its facts" do
-      record = McpToken.authenticate(reader)
+      record = TailnetMcp::Token.authenticate(reader)
       call_tool("list_groups", token: reader)
 
       expect(lines.sole).to match(
@@ -220,7 +220,7 @@ RSpec.describe "MCP security" do
       call_tool("list_groups", {}, token: reader)
 
       expect(log.string).to include("StandardError")
-      expect(log.string).not_to include(reader.delete_prefix("chr_").chop, McpToken.authenticate(reader).digest)
+      expect(log.string).not_to include(reader.delete_prefix("chr_").chop, TailnetMcp::Token.authenticate(reader).digest)
       expect(log.string).not_to include("argument-value")
     end
   end

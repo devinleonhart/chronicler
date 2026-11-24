@@ -3,7 +3,7 @@ module McpHelpers
   MCP_HOST = "lucky.example.ts.net".freeze
 
   def issue_token(*scopes, machine: "cocoa")
-    McpToken.issue!(user:, machine:, scopes: scopes.presence || ["read"])
+    TailnetMcp::Token.issue!(user:, machine:, scopes: scopes.presence || ["read"])
   end
 
   def mcp_post(body, token: nil, host: MCP_HOST, headers: {})
@@ -48,7 +48,7 @@ RSpec.shared_context "with MCP" do
   let(:writer) { issue_token("read", "write") }
 
   before do
-    allow(Rails.configuration.x).to receive(:mcp_host).and_return(McpHelpers::MCP_HOST)
-    ChroniclerMcp::Limits.reset
+    allow(TailnetMcp.configuration).to receive(:host).and_return(McpHelpers::MCP_HOST)
+    TailnetMcp::Limits.reset
   end
 end

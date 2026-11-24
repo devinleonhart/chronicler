@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
-  match "mcp", to: "mcp#handle", via: :all, format: false
+  match "mcp", to: "tailnet_mcp/endpoint#handle", via: :all, format: false
 
   root to: redirect("/events", status: 302)
 

@@ -7,7 +7,7 @@ A web app for managing fictional universe timelines: characters, groups and even
 - **Application**: Rails 8.1 on Ruby 4.0, with Hotwire (Turbo, Stimulus), importmap, propshaft and Tailwind
 - **Database**: PostgreSQL 18 (Debian image; name order depends on its locale)
 - **Specs**: RSpec, with Cuprite and Chromium for system specs
-- **MCP**: the `mcp` gem, in the Rails process
+- **MCP**: the `tailnet_mcp` gem, in the Rails process
 
 ## Commands
 

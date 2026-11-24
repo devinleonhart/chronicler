@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe McpToken do
+RSpec.describe TailnetMcp::Token do
   let(:user) { create(:user) }
 
   def issue(**)

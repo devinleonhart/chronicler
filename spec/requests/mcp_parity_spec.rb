@@ -41,7 +41,7 @@ RSpec.describe "MCP parity" do
       start_ids_from_rows
 
       recorded["calls"].zip(recorded["contents"]).each do |(name, arguments), expected|
-        ChroniclerMcp::Limits.reset
+        TailnetMcp::Limits.reset
         actual = content(call_tool(name, arguments, token:))
         expect(actual).to eq(expected), "#{name} #{arguments}\nwas:  #{expected}\n/mcp: #{actual}"
       end
@@ -53,7 +53,7 @@ RSpec.describe "MCP parity" do
     names = fixture.values.flat_map { |recorded| recorded["calls"].map(&:first) }
 
     expect(fixture.size).to eq(7)
-    expect(names.uniq - ["drop_everything"]).to match_array(ChroniclerMcp.tools.map(&:name))
+    expect(names.uniq - ["drop_everything"]).to match_array(TailnetMcp.tools.map(&:name))
     expect(names.size).to eq(361)
   end
 end

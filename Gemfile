@@ -7,11 +7,11 @@ gem "rails", "~> 8.1.4"
 gem "bcrypt"
 gem "bootsnap", require: false
 gem "importmap-rails"
-gem "mcp"
 gem "pg"
 gem "propshaft"
 gem "puma"
 gem "stimulus-rails"
+gem "tailnet_mcp", github: "devinleonhart/tailnet-mcp", ref: "904fafe71bd70b10082ce0ec67d8a755bbf277f7"
 gem "tailwindcss-rails"
 gem "turbo-rails"
 

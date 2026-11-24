@@ -44,10 +44,6 @@ ENV RAILS_ENV=development
 COPY Gemfile Gemfile.lock ./
 RUN bundle install --jobs 4 --retry 3
 
-# The specs run the MCP server, which has its own gems.
-COPY mcp/Gemfile mcp/Gemfile.lock ./mcp/
-RUN BUNDLE_GEMFILE=mcp/Gemfile bundle install --jobs 4 --retry 3
-
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:$RAILS_PORT/up || exit 1
 

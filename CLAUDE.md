@@ -7,7 +7,7 @@ A web app for managing fictional universe timelines: characters, groups and even
 - **Application**: Rails 8.1 on Ruby 4.0, with Hotwire (Turbo, Stimulus), importmap, propshaft and Tailwind
 - **Database**: PostgreSQL 18 (Debian image; name order depends on its locale)
 - **Specs**: RSpec, with Cuprite and Chromium for system specs
-- **MCP server**: plain Ruby over stdio, in `mcp/`
+- **MCP**: the `mcp` gem, in the Rails process
 
 ## Commands
 
@@ -28,12 +28,11 @@ docker compose build web                                 # after changing a Gemf
 
 ```
 app/controllers/        # Pages: ERB, Turbo, session sign-in
-app/controllers/api/    # JSON API for the MCP server and scripts: bearer key
+app/controllers/api/    # JSON API for scripts: bearer key
 app/models/             # The rules, shared by both
 app/operations/         # What the API and the MCP tools do, without HTTP
 app/mcp/                # MCP tools, served at /mcp
 app/services/           # Ages, summary text, event list, current-day roster
-mcp/                    # The stdio MCP server, to be removed
 contract/               # Recorded behavior of the API, and a script to replay it
 db/legacy_schema.sql    # The schema before Rails, which the first migration converts
 ```
@@ -65,4 +64,3 @@ db/legacy_schema.sql    # The schema before Rails, which the first migration con
 | `MCP_HOST` | The only host that `/mcp` answers; unset, `/mcp` does not exist |
 | `APP_HOST` | The host production answers to (default `chronicler.devleo.me`) |
 | `DEVELOPMENT_DATABASE_URL`, `TEST_DATABASE_URL` | Set by compose; not `DATABASE_URL`, which would apply to both |
-| `CHRONICLER_URL`, `CHRONICLER_API_KEY` | Read by the MCP server |

@@ -3,7 +3,6 @@ paths:
   - "app/mcp/**"
   - "app/operations/**"
   - "app/controllers/mcp_controller.rb"
-  - "mcp/**"
 ---
 
 # MCP
@@ -17,4 +16,6 @@ paths:
 - The Host is read from the header itself, since Rails' `request.host` believes X-Forwarded-Host.
 - The log names the token, machine and tool, never a token or an argument.
 
-`mcp/server.rb` is the earlier stdio server. `spec/requests/mcp_parity_spec.rb` compares the two until it is removed.
+`spec/fixtures/files/mcp_parity.json` is what the earlier stdio server answered; `/mcp` must answer the same.
+
+On a machine, `~/.local/bin/mcp-token` keeps the token in its keyring, and Claude reads it through `headersHelper`.

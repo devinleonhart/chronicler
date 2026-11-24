@@ -7,6 +7,7 @@ gem "rails", "~> 8.1.4"
 gem "bcrypt"
 gem "bootsnap", require: false
 gem "importmap-rails"
+gem "mcp"
 gem "pg"
 gem "propshaft"
 gem "puma"

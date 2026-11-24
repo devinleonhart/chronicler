@@ -31,7 +31,8 @@ Rails.application.configure do
   health_check = ->(request) { request.path == "/up" }
   config.ssl_options = { redirect: { exclude: health_check } }
   config.hosts = [ENV.fetch("APP_HOST", "chronicler.devleo.me")]
-  config.host_authorization = { exclude: health_check }
+  # McpController checks its own host, which must not open the pages.
+  config.host_authorization = { exclude: ->(request) { ["/up", "/mcp"].include?(request.path) } }
 
 
   # Log to STDOUT with the current request id as a default log tag.

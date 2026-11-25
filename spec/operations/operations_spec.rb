@@ -70,19 +70,20 @@ RSpec.describe "Operations" do
         { "name" => "A" } => CharacterOperations::BIRTH_REQUIRED,
         fields.merge("deathDate" => "x") => CharacterOperations::DEATH,
         fields.merge("groupIds" => nil) => "groupIds must be an array",
-        fields.merge("groupIds" => [9]) => "Groups not found: 9",
+        fields.merge("groupIds" => [999_999]) => "Groups not found: 999999",
         fields.merge("deathDate" => "2269-01-01") => "deathDate cannot be before birthDate"
       }.each { |sent, message| expect(rejection { CharacterOperations.create(sent) }).to eq([message, 400]) }
 
       %i[show events delete].each do |name|
-        expect(rejection { CharacterOperations.public_send(name, 9) }).to eq(["Character not found", 404])
+        expect(rejection { CharacterOperations.public_send(name, 999_999) }).to eq(["Character not found", 404])
       end
-      expect(rejection { CharacterOperations.update(9, {}) }).to eq(["Character not found", 404])
-      expect(rejection { CharacterOperations.add_group(9, {}) }).to eq(["groupId must be a positive integer", 400])
-      expect(rejection { CharacterOperations.add_group(9, "groupId" => 1) }).to eq(["Character not found", 404])
+      expect(rejection { CharacterOperations.update(999_999, {}) }).to eq(["Character not found", 404])
+      expect(rejection { CharacterOperations.add_group(999_999, {}) })
+        .to eq(["groupId must be a positive integer", 400])
+      expect(rejection { CharacterOperations.add_group(999_999, "groupId" => 1) }).to eq(["Character not found", 404])
       expect(rejection { CharacterOperations.add_group(id_of(aria), "groupId" => 999_999) })
         .to eq(["Group not found", 404])
-      expect(rejection { CharacterOperations.remove_group(9, 1) }).to eq(["Character not found", 404])
+      expect(rejection { CharacterOperations.remove_group(999_999, 1) }).to eq(["Character not found", 404])
       expect { CharacterOperations.list(group_id: 99_999_999_999) }.to raise_error(RangeError)
     end
 
@@ -93,8 +94,8 @@ RSpec.describe "Operations" do
         { "updates" => [{}] } => ["Each update must have a positive integer id (got: undefined)", 400],
         { "updates" => [{ "id" => id, "name" => "" }] } => ["Character #{id}: name must be a non-empty string", 400],
         { "updates" => [{ "id" => id, "name" => "X" }, { "id" => 999_999 }] } => ["Characters not found: 999999", 404],
-        { "updates" => [{ "id" => id, "name" => "X" }, { "id" => id, "groupIds" => [9] }] } =>
-          ["Character #{id}: Groups not found: 9", 400]
+        { "updates" => [{ "id" => id, "name" => "X" }, { "id" => id, "groupIds" => [999_999] }] } =>
+          ["Character #{id}: Groups not found: 999999", 400]
       }.each { |fields, answer| expect(rejection { BulkCharacterOperation.update(fields) }).to eq(answer) }
       expect(Character.sole.name).to eq("Aria")
     end
